@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Account — Atelier</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/ui.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="/js/tailwind-config.js"></script>
+  <style>
+    .auth-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem; max-width: 1100px; margin: 0 auto; }
+    .auth-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; }
+    .auth-card h2 { font-family: var(--font-display); font-size: 1.5rem; margin-bottom: 1rem; color: var(--gold); }
+    .auth-card label { display: block; font-size: 0.75rem; color: var(--muted); margin: 0.75rem 0 0.25rem; text-transform: uppercase; letter-spacing: 0.06em; }
+    .auth-card input { width: 100%; padding: 0.65rem; background: var(--bg); border: 1px solid var(--border); border-radius: 4px; color: var(--text); font-family: inherit; }
+    .auth-card .btn { width: 100%; margin-top: 1rem; }
+    .msg { margin-top: 0.75rem; font-size: 0.85rem; color: var(--muted); }
+    .msg.ok { color: var(--success); }
+    .msg.err { color: var(--danger); }
+    .otp-box { display: none; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border); }
+    .otp-box.show { display: block; }
+  </style>
+</head>
+<body class="bg-atelier-bg text-atelier-text font-body">
+  <nav class="navbar">
+    <a href="index.html" class="brand">ATELIER</a>
+    <div class="nav-links">
+      <a href="index.html">Shop</a>
+      <span id="sessionStatus" class="session-badge">Guest</span>
+    </div>
+  </nav>
+
+  <div class="container">
+    <h1 style="font-family: var(--font-display); text-align: center; margin-bottom: 2rem;">Your Account</h1>
+    <div class="auth-grid">
+      <div class="auth-card ui-enhanced shadow-card rounded-xl transition-all hover:shadow-glow" id="registerCard">
+        <h2>Register</h2>
+        <label>Username</label><input id="regUsername" type="text">
+        <label>Email</label><input id="regEmail" type="email">
+        <label>Password</label><input id="regPassword" type="password">
+        <label>Phone</label><input id="regPhone" type="tel">
+        <label>Address</label><input id="regAddress" type="text">
+        <label>Date of birth</label><input id="regDob" type="date">
+        <button type="button" class="btn btn-primary" id="registerBtn">Register</button>
+        <p class="msg" id="regMsg"></p>
+        <div class="otp-box" id="otpBox">
+          <label>OTP (check your email; if mail is off, see server console)</label>
+          <input id="otpCode" type="text" maxlength="6" placeholder="6-digit code">
+          <button type="button" class="btn btn-outline" id="verifyBtn">Verify OTP</button>
+          <button type="button" class="btn btn-outline" id="resendBtn" style="margin-top: 0.5rem;">Resend OTP</button>
+          <p class="msg" id="otpMsg"></p>
+        </div>
+      </div>
+      <div class="auth-card ui-enhanced shadow-card rounded-xl transition-all hover:shadow-glow" id="loginCard">
+        <h2>Login</h2>
+        <label>Email</label><input id="loginEmail" type="email">
+        <label>Password</label><input id="loginPassword" type="password">
+        <button type="button" class="btn btn-primary" id="loginBtn">Login</button>
+        <p class="msg" id="loginMsg"></p>
+        <p style="margin-top:0.75rem;font-size:0.85rem;"><a href="#" id="showForgotLink" style="color:var(--gold);">Forgot password?</a></p>
+      </div>
+      <div class="auth-card ui-enhanced shadow-card rounded-xl" id="forgotCard" style="display:none;">
+        <h2>Reset password</h2>
+        <p class="msg" style="margin-top:0;">Enter your account email. We will send a 6-digit code.</p>
+        <label>Email</label><input id="forgotEmail" type="email">
+        <button type="button" class="btn btn-primary" id="forgotBtn">Send reset code</button>
+        <p class="msg" id="forgotMsg"></p>
+        <div class="otp-box" id="resetBox">
+          <label>Reset code</label>
+          <input id="resetOtp" type="text" maxlength="6" placeholder="6-digit code">
+          <label>New password</label>
+          <input id="resetPassword" type="password" minlength="8">
+          <button type="button" class="btn btn-outline" id="resetBtn">Update password</button>
+          <p class="msg" id="resetMsg"></p>
+        </div>
+        <p style="margin-top:0.75rem;font-size:0.85rem;"><a href="#" id="backLoginLink" style="color:var(--muted);">Back to login</a></p>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/ui.js"></script>
+  <script src="/js/common.js"></script>
+  <script>
+    let pendingEmail = '';
+
+    function authMsg(el, text, type) {
+      if (typeof setCardMessage === 'function') setCardMessage(el, text, type);
+      else { el.textContent = text; el.className = 'msg ' + (type === 'success' ? 'ok' : type === 'error' ? 'err' : ''); }
+    }
+
+    document.getElementById('registerBtn').addEventListener('click', async () => {
+      const msg = document.getElementById('regMsg');
+      try {
+        await apiFetch('/api/auth/register', {
+          method: 'POST',
+          body: JSON.stringify({
+            username: document.getElementById('regUsername').value,
+            email: document.getElementById('regEmail').value,
+            password: document.getElementById('regPassword').value,
+            phone: document.getElementById('regPhone').value,
+            address: document.getElementById('regAddress').value,
+            dob: document.getElementById('regDob').value
+          })
+        });
+        pendingEmail = document.getElementById('regEmail').value;
+        authMsg(msg, 'Registered. Check your email for the OTP.', 'success');
+        showToast('Registration started — check your email', 'success');
+        document.getElementById('otpBox').classList.add('show');
+      } catch (e) {
+        authMsg(msg, e.message, 'error');
+      }
+    });
+
+    document.getElementById('verifyBtn').addEventListener('click', async () => {
+      const msg = document.getElementById('otpMsg');
+      try {
+        await apiFetch('/api/auth/verify-otp', {
+          method: 'POST',
+          body: JSON.stringify({ email: pendingEmail || document.getElementById('regEmail').value, otp: document.getElementById('otpCode').value })
+        });
+        authMsg(msg, 'Verified! You can login now.', 'success');
+        showToast('Email verified', 'success');
+      } catch (e) {
+        authMsg(msg, e.message, 'error');
+      }
+    });
+
+    document.getElementById('resendBtn').addEventListener('click', async () => {
+      const msg = document.getElementById('otpMsg');
+      try {
+        await apiFetch('/api/auth/resend-otp', {
+          method: 'POST',
+          body: JSON.stringify({ email: pendingEmail || document.getElementById('regEmail').value })
+        });
+        authMsg(msg, 'OTP resent. Check your email.', 'success');
+        showToast('OTP resent', 'info');
+      } catch (e) {
+        authMsg(msg, e.message, 'error');
+      }
+    });
+
+    let resetEmail = '';
+
+    document.getElementById('showForgotLink').addEventListener('click', (e) => {
+      e.preventDefault();
+      document.getElementById('forgotCard').style.display = 'block';
+      document.getElementById('registerCard').style.display = 'none';
+      document.getElementById('loginCard').style.display = 'none';
+    });
+
+    document.getElementById('backLoginLink').addEventListener('click', (e) => {
+      e.preventDefault();
+      document.getElementById('forgotCard').style.display = 'none';
+      document.getElementById('registerCard').style.display = 'block';
+      document.getElementById('loginCard').style.display = 'block';
+    });
+
+    document.getElementById('forgotBtn').addEventListener('click', async () => {
+      const msg = document.getElementById('forgotMsg');
+      resetEmail = document.getElementById('forgotEmail').value.trim();
+      try {
+        const data = await apiFetch('/api/auth/forgot-password', {
+          method: 'POST',
+          body: JSON.stringify({ email: resetEmail })
+        });
+        authMsg(msg, data.message, 'success');
+        document.getElementById('resetBox').classList.add('show');
+      } catch (e) {
+        authMsg(msg, e.message, 'error');
+      }
+    });
+
+    document.getElementById('resetBtn').addEventListener('click', async () => {
+      const msg = document.getElementById('resetMsg');
+      try {
+        await apiFetch('/api/auth/reset-password', {
+          method: 'POST',
+          body: JSON.stringify({
+            email: resetEmail || document.getElementById('forgotEmail').value.trim(),
+            otp: document.getElementById('resetOtp').value,
+            newPassword: document.getElementById('resetPassword').value
+          })
+        });
+        authMsg(msg, 'Password updated. You can log in.', 'success');
+        showToast('Password updated', 'success');
+        document.getElementById('forgotCard').style.display = 'none';
+        document.getElementById('registerCard').style.display = 'block';
+        document.getElementById('loginCard').style.display = 'block';
+      } catch (e) {
+        authMsg(msg, e.message, 'error');
+      }
+    });
+
+    document.getElementById('loginBtn').addEventListener('click', async () => {
+      const msg = document.getElementById('loginMsg');
+      try {
+        const data = await apiFetch('/api/auth/login', {
+          method: 'POST',
+          body: JSON.stringify({
+            email: document.getElementById('loginEmail').value,
+            password: document.getElementById('loginPassword').value
+          })
+        });
+        setSession(data.accessToken, document.getElementById('loginEmail').value);
+        authMsg(msg, 'Logged in! Redirecting…', 'success');
+        showToast('Welcome back', 'success');
+        updateNavbar();
+        const next = sessionStorage.getItem('postLoginRedirect') || 'index.html';
+        sessionStorage.removeItem('postLoginRedirect');
+        setTimeout(() => { location.href = next; }, 800);
+      } catch (e) {
+        authMsg(msg, e.message, 'error');
+      }
+    });
+  </script>
+</body>
+</html>

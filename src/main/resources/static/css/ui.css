@@ -1,0 +1,268 @@
+/* UI layer: animations, toasts, card messages — works with style.css + Tailwind */
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+body.ui-ready {
+  opacity: 1;
+}
+
+body:not(.ui-ready) {
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+.page-content {
+  animation: fadeIn 0.5s ease-out forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes cardMsgIn {
+  from { opacity: 0; transform: translateY(-6px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes toastIn {
+  from { opacity: 0; transform: translateX(100%) scale(0.95); }
+  to { opacity: 1; transform: translateX(0) scale(1); }
+}
+
+@keyframes toastOut {
+  from { opacity: 1; transform: translateX(0); }
+  to { opacity: 0; transform: translateX(100%); }
+}
+
+.stagger-in {
+  opacity: 0;
+  animation: slideUp 0.45s ease-out forwards;
+}
+
+/* Card-style inline messages (replaces plain .msg when set via setCardMessage) */
+.card-msg {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+  margin-top: 0.75rem;
+  padding: 0.85rem 1rem;
+  border-radius: 0.625rem;
+  border: 1px solid;
+  font-size: 0.875rem;
+  line-height: 1.45;
+  animation: cardMsgIn 0.35s ease-out forwards;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+}
+
+.card-msg::before {
+  flex-shrink: 0;
+  width: 1.25rem;
+  height: 1.25rem;
+  margin-top: 0.1rem;
+  background-size: contain;
+  background-repeat: no-repeat;
+  content: '';
+}
+
+.card-msg--success {
+  background: rgba(74, 222, 128, 0.1);
+  border-color: rgba(74, 222, 128, 0.45);
+  color: var(--success);
+}
+
+.card-msg--success::before {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%234ade80'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M5 13l4 4L19 7'/%3E%3C/svg%3E");
+}
+
+.card-msg--error {
+  background: rgba(248, 113, 113, 0.1);
+  border-color: rgba(248, 113, 113, 0.45);
+  color: var(--danger);
+}
+
+.card-msg--error::before {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23f87171'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M6 18L18 6M6 6l12 12'/%3E%3C/svg%3E");
+}
+
+.card-msg--info {
+  background: rgba(201, 169, 98, 0.08);
+  border-color: rgba(201, 169, 98, 0.35);
+  color: var(--gold);
+}
+
+.card-msg--info::before {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23c9a962'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z'/%3E%3C/svg%3E");
+}
+
+.card-msg--warning {
+  background: rgba(251, 191, 36, 0.08);
+  border-color: rgba(251, 191, 36, 0.4);
+  color: #fbbf24;
+}
+
+.card-msg--warning::before {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23fbbf24'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M12 9v2m0 4h.01'/%3E%3C/svg%3E");
+}
+
+/* Toast stack */
+#toast-stack {
+  position: fixed;
+  top: 5.5rem;
+  right: 1rem;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  max-width: min(22rem, calc(100vw - 2rem));
+  pointer-events: none;
+}
+
+.toast-card {
+  pointer-events: auto;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 1rem 1.15rem;
+  border-radius: 0.75rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(201, 169, 98, 0.08);
+  animation: toastIn 0.4s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  backdrop-filter: blur(12px);
+}
+
+.toast-card.toast-exit {
+  animation: toastOut 0.3s ease-in forwards;
+}
+
+.toast-card__icon {
+  flex-shrink: 0;
+  width: 1.35rem;
+  height: 1.35rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.toast-card--success .toast-card__icon {
+  background: rgba(74, 222, 128, 0.2);
+  color: var(--success);
+}
+
+.toast-card--error .toast-card__icon {
+  background: rgba(248, 113, 113, 0.2);
+  color: var(--danger);
+}
+
+.toast-card--info .toast-card__icon {
+  background: rgba(201, 169, 98, 0.2);
+  color: var(--gold);
+}
+
+.toast-card__body {
+  flex: 1;
+  min-width: 0;
+}
+
+.toast-card__title {
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  margin-bottom: 0.2rem;
+}
+
+.toast-card__text {
+  font-size: 0.9rem;
+  color: var(--text);
+  line-height: 1.4;
+}
+
+.toast-card__close {
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 0.15rem;
+  font-size: 1.1rem;
+  line-height: 1;
+  transition: color 0.15s;
+}
+
+.toast-card__close:hover {
+  color: var(--text);
+}
+
+/* Tailwind-enhanced surfaces (additive) */
+.navbar.ui-enhanced {
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition: box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+.navbar.ui-enhanced.scrolled {
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+}
+
+.product-card.ui-enhanced {
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.25s ease,
+    box-shadow 0.3s ease;
+}
+
+.product-card.ui-enhanced:hover {
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(201, 169, 98, 0.25);
+}
+
+.order-card.ui-enhanced,
+.auth-card.ui-enhanced,
+.cart-summary.ui-enhanced {
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.order-card.ui-enhanced:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.3);
+}
+
+.btn.ui-enhanced {
+  transition: transform 0.15s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.btn.ui-enhanced:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(201, 169, 98, 0.25);
+}
+
+.btn.ui-enhanced:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.loading.ui-shimmer {
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+
+.skeleton-pulse {
+  background: linear-gradient(90deg, var(--surface) 25%, var(--surface2) 50%, var(--surface) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.2s ease-in-out infinite;
+  border-radius: 0.5rem;
+  min-height: 1rem;
+}
