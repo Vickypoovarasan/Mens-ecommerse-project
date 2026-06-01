@@ -21,7 +21,9 @@ async function loadProducts(category = currentCategory, query = currentQuery) {
 
     grid.innerHTML = data.items.map(p => `
       <article class="product-card ui-enhanced shadow-card hover:shadow-glow" onclick="location.href='product-details.html?id=${p.id}'">
-        <div class="img-wrap ${p.imageKey}"></div>
+        <div class="img-wrap ${p.imageUrl ? '' : p.imageKey}">
+          ${p.imageUrl ? `<img src="${escapeHtml(p.imageUrl)}" alt="${escapeHtml(p.name)}">` : ''}
+        </div>
         <div class="info">
           <span class="category">${escapeHtml(p.category || '')}</span>
           <h3>${escapeHtml(p.name)}</h3>

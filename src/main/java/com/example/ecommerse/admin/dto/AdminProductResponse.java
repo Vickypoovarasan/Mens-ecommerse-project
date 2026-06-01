@@ -7,6 +7,7 @@ public record AdminProductResponse(
 		String name,
 		String description,
 		String category,
+		String imageUrl,
 		BigDecimal basePrice,
 		boolean active) {
 }

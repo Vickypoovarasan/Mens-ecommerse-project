@@ -73,6 +73,7 @@ public class ProductCatalogService {
 				product.getCategory(),
 				product.getBasePrice(),
 				imageKeyFor(product),
+				product.getImageUrl(),
 				Math.min(rating, 5.0),
 				reviews,
 				variants);
@@ -84,7 +85,8 @@ public class ProductCatalogService {
 				product.getName(),
 				product.getCategory(),
 				product.getBasePrice(),
-				imageKeyFor(product));
+				imageKeyFor(product),
+				product.getImageUrl());
 	}
 
 	private VariantResponse toVariant(ProductVariant variant) {

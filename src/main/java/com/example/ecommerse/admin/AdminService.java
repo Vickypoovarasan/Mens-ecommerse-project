@@ -249,6 +249,7 @@ public class AdminService {
 		product.setName(request.name().trim());
 		product.setDescription(request.description());
 		product.setCategory(request.category());
+		product.setImageUrl(request.imageUrl() == null || request.imageUrl().isBlank() ? null : request.imageUrl().trim());
 		product.setBasePrice(request.basePrice());
 		product.setActive(request.active());
 	}
@@ -259,6 +260,7 @@ public class AdminService {
 				product.getName(),
 				product.getDescription(),
 				product.getCategory(),
+				product.getImageUrl(),
 				product.getBasePrice(),
 				product.isActive());
 	}

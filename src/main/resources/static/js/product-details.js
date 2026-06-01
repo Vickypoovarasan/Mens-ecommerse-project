@@ -40,7 +40,9 @@ function renderProduct() {
 
   document.getElementById('detailMain').innerHTML = `
     <div class="detail-layout animate-fade-in">
-      <div class="detail-image ${p.imageKey}"></div>
+      <div class="detail-image ${p.imageUrl ? '' : p.imageKey}">
+        ${p.imageUrl ? `<img src="${escapeHtml(p.imageUrl)}" alt="${escapeHtml(p.name)}">` : ''}
+      </div>
       <div>
         <span class="category">${escapeHtml(p.category)}</span>
         <h1 style="font-family: var(--font-display); font-size: 2.25rem; font-weight: 500; margin: 0.25rem 0;">${escapeHtml(p.name)}</h1>

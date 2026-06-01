@@ -31,6 +31,9 @@ public class Product {
 	@Column(name = "base_price", nullable = false, precision = 10, scale = 2)
 	private BigDecimal basePrice;
 
+	@Column(name = "image_url", length = 512)
+	private String imageUrl;
+
 	@Column(name = "active", nullable = false)
 	private boolean active;
 
@@ -89,6 +92,14 @@ public class Product {
 
 	public void setActive(boolean active) {
 		this.active = active;
+	}
+
+	public String getImageUrl() {
+		return imageUrl;
+	}
+
+	public void setImageUrl(String imageUrl) {
+		this.imageUrl = imageUrl;
 	}
 
 	public Instant getCreatedAt() {

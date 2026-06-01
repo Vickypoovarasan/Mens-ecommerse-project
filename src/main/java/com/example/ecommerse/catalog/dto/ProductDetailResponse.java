@@ -10,6 +10,7 @@ public record ProductDetailResponse(
 		String category,
 		BigDecimal basePrice,
 		String imageKey,
+		String imageUrl,
 		double averageRating,
 		int reviewCount,
 		List<VariantResponse> variants

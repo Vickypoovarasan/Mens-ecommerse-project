@@ -132,6 +132,19 @@ function bindOrderActions(root) {
 
 async function loadProducts() {
   const root = document.getElementById('productsRoot');
+  let editingProductId = null;
+
+  function resetProductForm() {
+    editingProductId = null;
+    document.getElementById('pName').value = '';
+    document.getElementById('pCategory').value = '';
+    document.getElementById('pImageUrl').value = '';
+    document.getElementById('pPrice').value = '';
+    document.getElementById('pDesc').value = '';
+    document.getElementById('pActive').checked = true;
+    document.getElementById('addProductBtn').textContent = 'Add product';
+  }
+
   try {
     const products = await apiFetch('/api/admin/products');
     root.innerHTML = `
@@ -140,6 +153,7 @@ async function loadProducts() {
         <div class="form-grid">
           <input id="pName" placeholder="Name" type="text">
           <input id="pCategory" placeholder="Category (Suits/Shirts)" type="text">
+          <input id="pImageUrl" placeholder="Image URL" type="text">
           <input id="pPrice" placeholder="Base price" type="number" step="0.01" min="0">
           <label class="chk"><input id="pActive" type="checkbox" checked> Active</label>
         </div>
@@ -167,51 +181,53 @@ async function loadProducts() {
       </table>
       <div id="variantPanel" class="variant-panel hidden"></div>`;
 
-    document.getElementById('addProductBtn').addEventListener('click', async () => {
-      const msg = document.getElementById('productFormMsg');
+    const addButton = document.getElementById('addProductBtn');
+    const productFormMsg = document.getElementById('productFormMsg');
+
+    addButton.addEventListener('click', async () => {
       try {
-        await apiFetch('/api/admin/products', {
-          method: 'POST',
-          body: JSON.stringify({
-            name: document.getElementById('pName').value,
-            description: document.getElementById('pDesc').value,
-            category: document.getElementById('pCategory').value,
-            basePrice: Number(document.getElementById('pPrice').value),
-            active: document.getElementById('pActive').checked
-          })
+        const payload = {
+          name: document.getElementById('pName').value,
+          description: document.getElementById('pDesc').value,
+          category: document.getElementById('pCategory').value,
+          imageUrl: document.getElementById('pImageUrl').value.trim(),
+          basePrice: Number(document.getElementById('pPrice').value),
+          active: document.getElementById('pActive').checked
+        };
+
+        const url = editingProductId ? `/api/admin/products/${editingProductId}` : '/api/admin/products';
+        const method = editingProductId ? 'PUT' : 'POST';
+
+        await apiFetch(url, {
+          method,
+          body: JSON.stringify(payload)
         });
-        setCardMessage(msg, 'Product added.', 'success');
-        showToast('Product added', 'success');
+
+        setCardMessage(productFormMsg, editingProductId ? 'Product updated.' : 'Product added.', 'success');
+        showToast(editingProductId ? 'Product updated' : 'Product added', 'success');
+        resetProductForm();
         loadProducts();
       } catch (e) {
-        setCardMessage(msg, e.message, 'error');
+        setCardMessage(productFormMsg, e.message, 'error');
       }
     });
 
     root.querySelectorAll('.edit-product').forEach(btn => {
-      btn.addEventListener('click', async () => {
+      btn.addEventListener('click', () => {
         const id = btn.closest('tr').dataset.id;
         const p = products.find(x => String(x.id) === id);
-        const name = prompt('Name', p.name);
-        if (name === null) return;
-        const category = prompt('Category', p.category || '');
-        const basePrice = prompt('Base price', p.basePrice);
-        if (basePrice === null) return;
-        try {
-          await apiFetch(`/api/admin/products/${id}`, {
-            method: 'PUT',
-            body: JSON.stringify({
-              name,
-              description: p.description,
-              category,
-              basePrice: Number(basePrice),
-              active: confirm('Active? OK = yes')
-            })
-          });
-          loadProducts();
-        } catch (e) {
-          alert(e.message);
-        }
+        if (!p) return;
+
+        editingProductId = id;
+        document.getElementById('pName').value = p.name || '';
+        document.getElementById('pCategory').value = p.category || '';
+        document.getElementById('pImageUrl').value = p.imageUrl || '';
+        document.getElementById('pPrice').value = p.basePrice || '';
+        document.getElementById('pDesc').value = p.description || '';
+        document.getElementById('pActive').checked = p.active;
+        addButton.textContent = 'Update product';
+        productFormMsg.textContent = '';
+        document.querySelector('.admin-product-form').scrollIntoView({ behavior: 'smooth' });
       });
     });
 
