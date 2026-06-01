@@ -1,0 +1,54 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Atelier — Premium Menswear</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/ui.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="/js/tailwind-config.js"></script>
+</head>
+<body class="bg-atelier-bg text-atelier-text font-body">
+  <nav class="navbar">
+    <a href="index.html" class="brand">ATELIER</a>
+    <div class="nav-links">
+      <a href="index.html">Shop</a>
+      <a href="cart.html">Cart</a>
+      <a href="orders.html">Orders</a>
+      <!-- <a href="login.html">Account</a> -->
+      <button type="button" id="logoutBtn" class="btn btn-register" style="display:none;">Logout</button>
+      <span id="sessionStatus" class="session-badge">Guest</span>
+    </div>
+  </nav>
+
+  <section class="hero relative overflow-hidden py-12 md:py-16">
+    <div class="absolute inset-0 bg-gradient-to-b from-amber-900/15 via-transparent to-transparent pointer-events-none" aria-hidden="true"></div>
+    <div class="relative z-10">
+      <h1 class="font-display text-4xl md:text-6xl font-medium tracking-tight text-atelier-text mb-3 animate-slide-up">Premium Menswear</h1>
+      <p class="text-atelier-muted max-w-lg mx-auto text-base md:text-lg animate-fade-in">Handpicked suits and formal shirts for the modern gentleman.</p>
+    </div>
+  </section>
+
+  <div class="container">
+    <div class="search-bar max-w-xl mx-auto mb-6">
+      <input type="search" id="searchInput" class="rounded-lg border-atelier-border focus:ring-2 focus:ring-atelier-gold/40 transition-shadow" placeholder="Search suits, shirts, navy…" autocomplete="off">
+      <button type="button" class="btn btn-primary btn-sm rounded-lg shadow-md hover:shadow-glow" id="searchBtn">Search</button>
+    </div>
+    <div class="filters flex flex-wrap justify-center gap-3 mb-8">
+      <button type="button" class="filter-btn active rounded-full px-5 py-2 transition-all duration-200 hover:scale-105" data-category="">All</button>
+      <button type="button" class="filter-btn rounded-full px-5 py-2 transition-all duration-200 hover:scale-105" data-category="Suits">Suits</button>
+      <button type="button" class="filter-btn rounded-full px-5 py-2 transition-all duration-200 hover:scale-105" data-category="Shirts">Shirts</button>
+    </div>
+    <div id="productGrid" class="product-grid">
+      <p class="loading">Loading collection…</p>
+    </div>
+  </div>
+
+  <script src="/js/ui.js"></script>
+  <script src="/js/common.js"></script>
+  <script src="/js/index.js"></script>
+</body>
+</html>

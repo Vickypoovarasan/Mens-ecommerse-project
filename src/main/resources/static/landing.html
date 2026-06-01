@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MEN'S THREADS | Premium Atelier</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/ui.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="/js/tailwind-config.js"></script>
+  <style>
+    body { font-family: 'DM Sans', sans-serif; background: radial-gradient(circle at top left, rgba(201, 169, 98, 0.12), transparent 35%), var(--bg); color: var(--text); }
+    .page-header { padding: 1.25rem 0; }
+    .page-header .inner { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+    .brand { font-size: 1.5rem; letter-spacing: 0.18em; font-weight: 700; text-transform: uppercase; color: var(--gold); }
+    .nav-links { display: flex; align-items: center; gap: 0.85rem; }
+    .nav-links a { color: var(--text); font-weight: 600; border: 1px solid rgba(201, 169, 98, 0.2); padding: 0.75rem 1.15rem; border-radius: 9999px; background: rgba(255,255,255,0.04); transition: all 0.25s ease; }
+    .nav-links a:hover { background: rgba(201, 169, 98, 0.12); border-color: var(--gold); }
+    .hero-landing {
+      min-height: 72vh;
+      display: grid;
+      align-items: center;
+      padding: 4rem 0;
+      position: relative;
+      background: linear-gradient(180deg, rgba(15,20,25,0.75), rgba(15,20,25,0.75)), url('https://images.unsplash.com/photo-1512436991641-6745cdb1723f?w=1600&q=80') center/cover no-repeat;
+    }
+    .hero-landing::before { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at top right, rgba(249, 115, 22, 0.24), transparent 32%); pointer-events: none; }
+    .hero-panel { position: relative; z-index: 1; max-width: 760px; margin: 0 auto; text-align: center; }
+    .eyebrow { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.3em; color: var(--gold); margin-bottom: 1rem; }
+    .headline { font-family: 'Cormorant Garamond', serif; font-size: clamp(3.2rem, 5vw, 5rem); line-height: 0.95; color: var(--text); margin: 0; }
+    .subtext { color: var(--muted); font-size: 1.05rem; line-height: 1.9; margin: 1.5rem auto 0; max-width: 42rem; }
+    .hero-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 1rem; margin-top: 2.5rem; }
+    .hero-actions .btn-primary { min-width: 170px; }
+    .hero-actions .btn-outline { min-width: 170px; border-color: rgba(255,255,255,0.15); color: var(--text); }
+    .featured-banner { padding: 3rem 0; }
+    .featured-card { position: relative; overflow: hidden; min-height: 320px; border-radius: 28px; background: linear-gradient(180deg, rgba(15,23,42,0.45), rgba(15,23,42,0.45)); }
+    .featured-card img { width: 100%; height: 100%; object-fit: cover; filter: brightness(0.7); transition: transform 0.4s ease; }
+    .featured-card:hover img { transform: scale(1.03); }
+    .featured-card .featured-content { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: flex-end; padding: 2rem; color: white; z-index: 2; }
+    .featured-card .featured-content p { margin: 0; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(255,255,255,0.8); font-size: 0.85rem; }
+    .featured-card .featured-content h3 { margin: 0.75rem 0 1rem; font-size: clamp(2rem, 2.5vw, 2.75rem); line-height: 1.05; }
+    .featured-card .featured-content a { display: inline-flex; align-items: center; justify-content: center; width: max-content; padding: 0.9rem 1.6rem; border-radius: 999px; background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.26); color: white; text-decoration: none; font-weight: 600; transition: background 0.25s ease; }
+    .featured-card .featured-content a:hover { background: rgba(255,255,255,0.2); }
+    .collection-section { padding: 3rem 0; }
+    .section-title { font-size: clamp(2rem, 3vw, 3rem); font-weight: 700; color: var(--text); margin-bottom: 2rem; text-align: center; }
+    .feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem; margin-top: 2rem; }
+    .feature-card { padding: 2rem; border-radius: 30px; background: var(--surface); box-shadow: 0 30px 80px rgba(15, 23, 42, 0.12); border: 1px solid rgba(255, 255, 255, 0.06); }
+    .feature-card h3 { margin-top: 1rem; font-size: 1.2rem; font-weight: 700; color: var(--text); }
+    .feature-card p { margin-top: 0.85rem; color: var(--muted); line-height: 1.8; }
+    .collection-grid { display: grid; gap: 1.5rem; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+    .collection-tile { position: relative; border-radius: 28px; overflow: hidden; min-height: 340px; }
+    .collection-tile img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease; }
+    .collection-tile:hover img { transform: scale(1.05); }
+    .collection-overlay { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(15,23,42,0.18) 0%, rgba(15,23,42,0.6) 100%); display: flex; align-items: flex-end; padding: 2rem; }
+    .collection-overlay h3, .collection-overlay p { margin: 0; color: white; }
+    .footer { padding: 4rem 0 2rem; background: #0f172a; color: #cbd5e1; }
+    .footer-grid { display: grid; gap: 2rem; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+    .footer-title { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.28em; color: #93c5fd; margin-bottom: 1rem; }
+    .footer-link { display: block; margin-bottom: 0.75rem; color: #e2e8f0; transition: color 0.25s ease; }
+    .footer-link:hover { color: white; }
+    .footer-bottom { margin-top: 2rem; text-align: center; color: #94a3b8; font-size: 0.875rem; }
+    @media (max-width: 768px) {
+      .page-header .inner { flex-direction: column; align-items: flex-start; }
+      .hero-landing { padding: 2.5rem 0; }
+      .hero-panel { padding: 0 1rem; }
+      .hero-actions { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <header class="page-header">
+    <div class="container inner">
+      <a href="index.html" class="brand">ATELIER</a>
+      <div class="nav-links">
+        <a href="login.html">Login</a>
+        <a href="register.html">Register</a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero-landing">
+      <div class="container hero-panel">
+        <p class="eyebrow">Men's Threads Atelier</p>
+        <h1 class="headline">Built for the modern man who values premium fit and effortless style.</h1>
+        <p class="subtext">Discover crisp tailored essentials, elevated streetwear and seamless shopping across your favorite collections.</p>
+        <div class="hero-actions">
+          <a href="login.html" class="btn btn-primary">Login</a>
+          <a href="register.html" class="btn btn-outline">Register</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="featured-banner container">
+      <div class="section-title">Featured Collection</div>
+      <article class="featured-card">
+        <img src="https://images.unsplash.com/photo-1495020689067-958852a7765e?w=1600&q=80" alt="Featured menswear collection" />
+        <div class="featured-content">
+          <p>Editor's pick</p>
+          <h3>Seasonal wardrobe essentials with elevated tailoring</h3>
+          <a href="index.html">Explore the collection</a>
+        </div>
+      </article>
+    </section>
+
+    <section class="collection-section container">
+      <div class="section-title">Featured Collections</div>
+      <div class="collection-grid">
+        <article class="collection-tile">
+          <img loading="lazy" decoding="async" src="https://images.unsplash.com/photo-1621335829175-95f437384d7c?auto=format&fit=crop&w=1200&q=80" alt="Tailored Suits" />
+          <div class="collection-overlay">
+            <div>
+              <p class="text-sm uppercase tracking-[0.22em]">Tailored</p>
+              <h3>Sharp suiting for evening and office</h3>
+            </div>
+          </div>
+        </article>
+        <article class="collection-tile">
+<img loading="lazy" decoding="async" src="https://images.unsplash.com/photo-1596755094514-f87e34085b2c?auto=format&fit=crop&w=1200&q=80" alt="Luxury Shirts" />          <div class="collection-overlay">
+            <div>
+              <p class="text-sm uppercase tracking-[0.22em]">Essential</p>
+              <h3>Textured shirts with refined drape</h3>
+            </div>
+          </div>
+        </article>
+        <article class="collection-tile">
+<img loading="lazy" decoding="async" src="https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf?auto=format&fit=crop&w=1200&q=80" alt="Premium Casual Shirts" />          <div class="collection-overlay">
+            <div>
+              <p class="text-sm uppercase tracking-[0.22em]">Limited</p>
+              <h3>Street-ready staples with smart details</h3>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="container py-16">
+      <div class="section-title">Why Choose Men's Threads</div>
+      <div class="feature-grid">
+        <div class="feature-card">
+          <span class="text-3xl">✓</span>
+          <h3>Curated luxury essentials</h3>
+          <p>Designed for confident wear and effortless wardrobe elevation.</p>
+        </div>
+        <div class="feature-card">
+          <span class="text-3xl">⚡</span>
+          <h3>Fast checkout</h3>
+          <p>Secure payment and quick delivery make shopping smooth every time.</p>
+        </div>
+        <div class="feature-card">
+          <span class="text-3xl">🔒</span>
+          <h3>Trusted experience</h3>
+          <p>Every order is backed by customer-first support and transparent returns.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer-grid">
+      <div>
+        <p class="footer-title">Atelier Headquarters</p>
+        <p>123 Fashion Tech Boulevard<br>Suite 400<br>Chennai, India</p>
+      </div>
+      <div>
+        <p class="footer-title">Explore</p>
+        <a class="footer-link" href="login.html">Login</a>
+        <a class="footer-link" href="register.html">Create account</a>
+        <a class="footer-link" href="https://instagram.com" target="_blank">Instagram</a>
+      </div>
+      <div>
+        <p class="footer-title">Contact</p>
+        <p>support@mensthreads.com<br>+91 98765 43210</p>
+      </div>
+    </div>
+    <div class="footer-bottom">&copy; 2026 Men's Threads Co. All Rights Reserved.</div>
+  </footer>
+
+  <script src="/js/ui.js"></script>
+  <script src="/js/common.js"></script>
+</body>
+</html>

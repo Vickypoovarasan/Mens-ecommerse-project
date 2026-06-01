@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Register — Atelier</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/ui.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="/js/tailwind-config.js"></script>
+  <style>
+    /* Updated layout structure mirroring the visual layout of image_0d76a2.png */
+    .auth-grid { display: grid; grid-template-columns: 1fr; max-width: 650px; margin: 0 auto; }
+    .auth-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 2rem 2.25rem; }
+    .auth-card h2 { font-family: var(--font-display); font-size: 1.75rem; margin-bottom: 1.5rem; color: var(--gold); }
+    .auth-card label { display: block; font-size: 0.75rem; color: var(--muted); margin: 0.85rem 0 0.25rem; text-transform: uppercase; letter-spacing: 0.06em; }
+    .auth-card input, .auth-card select, .auth-card textarea { width: 100%; padding: 0.65rem 0.65rem 0.65rem 2.25rem; background: var(--bg); border: 1px solid var(--border); border-radius: 4px; color: var(--text); font-family: inherit; }
+    
+    /* Layout grid mapping split rows from image_0d76a2.png */
+    .form-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.25rem; }
+    
+    .auth-card .btn { width: 100%; margin-top: 1.25rem; }
+    .msg { margin-top: 0.75rem; font-size: 0.85rem; color: var(--muted); }
+    .msg.ok { color: var(--success); }
+    .msg.err { color: var(--danger); }
+    .otp-box { display: none; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border); }
+    .otp-box.show { display: block; }
+
+    /* Structured Layout Positioning Styles for Field Icons */
+    .input-field-group { position: relative; width: 100%; }
+    .input-field-group .field-icon { position: absolute; left: 0.85rem; top: 50%; transform: translateY(-50%); color: var(--muted); font-size: 0.9rem; pointer-events: none; }
+    .input-field-group .visibility-toggle { position: absolute; right: 0.85rem; top: 50%; transform: translateY(-50%); color: var(--muted); font-size: 0.9rem; cursor: pointer; transition: color 0.2s; }
+    .input-field-group .visibility-toggle:hover { color: var(--gold); }
+    
+    /* Responsive fallback for smaller screens */
+    @media (max-width: 640px) {
+      .form-row { grid-template-columns: 1fr; gap: 0; }
+    }
+
+    /* Specific adjustment for native browser datepicker indicators */
+    input[type="date"]::-webkit-calendar-picker-indicator { cursor: pointer; filter: invert(0.6); }
+  </style>
+</head>
+<body class="bg-atelier-bg text-atelier-text font-body">
+  <nav class="navbar">
+    <a href="index.html" class="brand">ATELIER</a>
+    <div class="nav-links">
+      <a href="landing.html">Home</a>
+      <a href="login.html">Login</a>
+    </div>
+  </nav>
+
+  <div class="container pt-8 sm:pt-12">
+    <h1 style="font-family: var(--font-display); text-align: center; margin-bottom: 1.5rem;">Create Account</h1>
+    <div class="auth-grid">
+      <div class="auth-card ui-enhanced shadow-card rounded-xl transition-all hover:shadow-glow" id="registerCard">
+        <h2>Register</h2>
+        
+        <div class="form-row">
+          <div>
+            <label>Username</label>
+            <div class="input-field-group">
+              <i class="fa-solid fa-user field-icon"></i>
+              <input id="regUsername" type="text" placeholder="username">
+            </div>
+          </div>
+          <div>
+            <label>Email</label>
+            <div class="input-field-group">
+              <i class="fa-solid fa-envelope field-icon"></i>
+              <input id="regEmail" type="email" placeholder="name@domain.com">
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div>
+            <label>Password</label>
+            <div class="input-field-group">
+              <i class="fa-solid fa-lock field-icon"></i>
+              <input id="regPassword" type="password" placeholder="••••••••">
+              <i class="fa-solid fa-eye visibility-toggle" id="toggleRegPassword"></i>
+            </div>
+          </div>
+          <div>
+            <label>Confirm Password</label>
+            <div class="input-field-group">
+              <i class="fa-solid fa-lock field-icon"></i>
+              <input id="regConfirmPassword" type="password" placeholder="••••••••">
+              <i class="fa-solid fa-eye visibility-toggle" id="toggleConfirmPassword"></i>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div>
+            <label>Phone</label>
+            <div class="input-field-group">
+              <i class="fa-solid fa-phone field-icon"></i>
+              <input id="regPhone" type="tel" placeholder="+1 (555) 000-0000">
+            </div>
+          </div>
+          <div>
+            <label>Address</label>
+            <div class="input-field-group">
+              <i class="fa-solid fa-location-dot field-icon"></i>
+              <input id="regAddress" type="text" placeholder="123 Luxury St, City">
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div>
+            <label>Date of birth</label>
+            <div class="input-field-group">
+              <i class="fa-solid fa-calendar field-icon"></i>
+              <input id="regDob" type="date">
+            </div>
+          </div>
+          <div></div> </div>
+        
+        <button type="button" class="btn btn-primary" id="registerBtn">Register</button>
+        <p class="msg" id="regMsg"></p>
+        
+        <div class="otp-box" id="otpBox">
+          <label style="line-height: 1.4;">OTP (check your email; if mail is off, see server console)</label>
+          <div class="input-field-group">
+            <i class="fa-solid fa-key field-icon"></i>
+            <input id="otpCode" type="text" maxlength="6" placeholder="6-digit code">
+          </div>
+          <button type="button" class="btn btn-outline" id="verifyBtn">Verify OTP</button>
+          <button type="button" class="btn btn-outline" id="resendBtn" style="margin-top: 0.5rem;">Resend OTP</button>
+          <p class="msg" id="otpMsg"></p>
+        </div>
+        
+        <p style="margin-top:1.25rem; font-size:0.85rem; border-top: 1px solid var(--border); padding-top: 1rem;">
+          <a href="login.html" style="color:var(--gold);">Already have an account? Login</a>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/ui.js"></script>
+  <script src="/js/common.js"></script>
+  <script>
+    let pendingEmail = '';
+
+    // REUSABLE VISIBILITY TOGGLE STRUCT
+    function attachVisibilityToggle(toggleId, inputId) {
+      const toggleIcon = document.getElementById(toggleId);
+      const passwordField = document.getElementById(inputId);
+      
+      toggleIcon.addEventListener('click', () => {
+        if (passwordField.type === 'password') {
+          passwordField.type = 'text';
+          toggleIcon.classList.replace('fa-eye', 'fa-eye-slash');
+        } else {
+          passwordField.type = 'password';
+          toggleIcon.classList.replace('fa-eye-slash', 'fa-eye');
+        }
+      });
+    }
+
+    attachVisibilityToggle('toggleRegPassword', 'regPassword');
+    attachVisibilityToggle('toggleConfirmPassword', 'regConfirmPassword');
+
+    function authMsg(el, text, type) {
+      if (typeof setCardMessage === 'function') setCardMessage(el, text, type);
+      else { el.textContent = text; el.className = 'msg ' + (type === 'success' ? 'ok' : type === 'error' ? 'err' : ''); }
+    }
+
+    document.getElementById('registerBtn').addEventListener('click', async () => {
+      const msg = document.getElementById('regMsg');
+      
+      const password = document.getElementById('regPassword').value;
+      const confirmPassword = document.getElementById('regConfirmPassword').value;
+
+      // Local UI mismatch validation guard clause
+      if (password !== confirmPassword) {
+        authMsg(msg, "Passwords do not match.", "error");
+        return;
+      }
+
+      try {
+        await apiFetch('/api/auth/register', {
+          method: 'POST',
+          body: JSON.stringify({
+            username: document.getElementById('regUsername').value,
+            email: document.getElementById('regEmail').value,
+            password: password,
+            phone: document.getElementById('regPhone').value,
+            address: document.getElementById('regAddress').value,
+            dob: document.getElementById('regDob').value
+          })
+        });
+        pendingEmail = document.getElementById('regEmail').value;
+        authMsg(msg, 'Registered. Check your email for the OTP.', 'success');
+        showToast('Registration started — check your email', 'success');
+        document.getElementById('otpBox').classList.add('show');
+      } catch (e) {
+        authMsg(msg, e.message, 'error');
+      }
+    });
+
+    document.getElementById('verifyBtn').addEventListener('click', async () => {
+      const msg = document.getElementById('otpMsg');
+      try {
+        await apiFetch('/api/auth/verify-otp', {
+          method: 'POST',
+          body: JSON.stringify({ email: pendingEmail || document.getElementById('regEmail').value, otp: document.getElementById('otpCode').value })
+        });
+        authMsg(msg, 'Verified! You can login now.', 'success');
+        showToast('Email verified', 'success');
+      } catch (e) {
+        authMsg(msg, e.message, 'error');
+      }
+    });
+
+    document.getElementById('resendBtn').addEventListener('click', async () => {
+      const msg = document.getElementById('otpMsg');
+      try {
+        await apiFetch('/api/auth/resend-otp', {
+          method: 'POST',
+          body: JSON.stringify({ email: pendingEmail || document.getElementById('regEmail').value })
+        });
+        authMsg(msg, 'OTP resent. Check your email.', 'success');
+        showToast('OTP resent', 'info');
+      } catch (e) {
+        authMsg(msg, e.message, 'error');
+      }
+    });
+  </script>
+</body>
+</html>

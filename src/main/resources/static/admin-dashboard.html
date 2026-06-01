@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin — Atelier</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/ui.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="/js/tailwind-config.js"></script>
+</head>
+<body class="bg-atelier-bg text-atelier-text font-body">
+  <nav class="navbar">
+    <a href="index.html" class="brand">ATELIER</a>
+    <div class="nav-links">
+      <!-- <a href="index.html">Storefront</a> -->
+      <button type="button" id="logoutBtn" class="btn btn-register" style="display:none;">Logout</button>
+      <span id="sessionStatus" class="session-badge">Admin</span>
+    </div>
+  </nav>
+  <div class="container admin-wrap">
+    <h1 class="page-title">Admin Dashboard</h1>
+    <p class="admin-hint">Login: <code>admin@atelier.local</code> / <code>Admin123!</code></p>
+
+    <div class="admin-tabs">
+      <button type="button" class="filter-btn active" data-tab="dispatch">Dispatch</button>
+      <button type="button" class="filter-btn" data-tab="returns">Returns</button>
+      <button type="button" class="filter-btn" data-tab="products">Products</button>
+    </div>
+
+    <section id="tab-dispatch" class="admin-panel">
+      <h2 class="detail-section-title">Dispatch feed</h2>
+      <div id="dispatchRoot"><p class="loading">Loading…</p></div>
+    </section>
+
+    <section id="tab-returns" class="admin-panel hidden">
+      <h2 class="detail-section-title">Return requests</h2>
+      <div id="returnsRoot"><p class="loading">Loading…</p></div>
+    </section>
+
+    <section id="tab-products" class="admin-panel hidden">
+      <h2 class="detail-section-title">Product catalog</h2>
+      <div id="productsRoot"><p class="loading">Loading…</p></div>
+    </section>
+  </div>
+  <script src="/js/ui.js"></script>
+  <script src="/js/common.js"></script>
+  <script src="/js/admin.js"></script>
+</body>
+</html>

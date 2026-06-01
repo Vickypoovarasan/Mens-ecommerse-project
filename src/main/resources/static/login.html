@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login — Atelier</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/ui.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="/js/tailwind-config.js"></script>
+  <style>
+    /* FIX: Constrained max-width to 420px and added auto-margins to anchor the card beautifully in the center */
+    .auth-grid { display: grid; grid-template-columns: 1fr; max-width: 420px; margin: 0 auto; }
+    .auth-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 2rem 1.75rem; }
+    .auth-card h2 { font-family: var(--font-display); font-size: 1.5rem; margin-bottom: 1rem; color: var(--gold); }
+    .auth-card label { display: block; font-size: 0.75rem; color: var(--muted); margin: 0.75rem 0 0.25rem; text-transform: uppercase; letter-spacing: 0.06em; }
+    .auth-card input, .auth-card select, .auth-card textarea { width: 100%; padding: 0.65rem 0.65rem 0.65rem 2.25rem; background: var(--bg); border: 1px solid var(--border); border-radius: 4px; color: var(--text); font-family: inherit; }
+    .auth-card .btn { width: 100%; margin-top: 1.25rem; }
+    .msg { margin-top: 0.75rem; font-size: 0.85rem; color: var(--muted); }
+    .msg.ok { color: var(--success); }
+    .msg.err { color: var(--danger); }
+    .otp-box { display: none; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border); }
+    .otp-box.show { display: block; }
+    
+    .input-field-group { position: relative; width: 100%; }
+    .input-field-group .field-icon { position: absolute; left: 0.85rem; top: 50%; transform: translateY(-50%); color: var(--muted); font-size: 0.9rem; pointer-events: none; }
+    .input-field-group .visibility-toggle { position: absolute; right: 0.85rem; top: 50%; transform: translateY(-50%); color: var(--muted); font-size: 0.9rem; cursor: pointer; transition: color 0.2s; }
+    .input-field-group .visibility-toggle:hover { color: var(--gold); }
+  </style>
+</head>
+<body class="bg-atelier-bg text-atelier-text font-body">
+  <nav class="navbar">
+    <a href="index.html" class="brand">ATELIER</a>
+    <div class="nav-links">
+      <a href="landing.html">Home</a>
+      <a href="register.html">Register</a>
+    </div>
+  </nav>
+
+  <div class="container pt-8 sm:pt-16">
+    <h1 style="font-family: var(--font-display); text-align: center; margin-bottom: 1.5rem;">Sign In</h1>
+    <div class="auth-grid">
+      
+      <div class="auth-card ui-enhanced shadow-card rounded-xl transition-all hover:shadow-glow" id="loginCard">
+        <h2>Login</h2>
+        
+        <label>Email</label>
+        <div class="input-field-group">
+          <i class="fa-solid fa-envelope field-icon"></i>
+          <input id="loginEmail" type="email" placeholder="name@domain.com">
+        </div>
+        
+        <label>Password</label>
+        <div class="input-field-group">
+          <i class="fa-solid fa-lock field-icon"></i>
+          <input id="loginPassword" type="password" placeholder="••••••••">
+          <i class="fa-solid fa-eye visibility-toggle" id="toggleLoginPassword"></i>
+        </div>
+        
+        <button type="button" class="btn btn-primary" id="loginBtn">Login</button>
+        <p class="msg" id="loginMsg"></p>
+        <p style="margin-top:0.85rem;font-size:0.85rem;"><a href="#" id="showForgotLink" style="color:var(--gold);">Forgot password?</a></p>
+        <p style="margin-top:1.25rem;font-size:0.85rem;color:var(--muted); border-top: 1px solid var(--border); padding-top: 1rem;">New here? <a href="register.html" style="color:var(--gold);font-weight:600;">Create an account</a></p>
+      </div>
+
+      <div class="auth-card ui-enhanced shadow-card rounded-xl transition-all hover:shadow-glow" id="forgotCard" style="display:none;">
+        <h2>Reset password</h2>
+        <p class="msg" style="margin-top:0; line-height: 1.4;">Enter your account email. We will send a 6-digit code.</p>
+        
+        <label>Email</label>
+        <div class="input-field-group">
+          <i class="fa-solid fa-envelope field-icon"></i>
+          <input id="forgotEmail" type="email" placeholder="name@domain.com">
+        </div>
+        
+        <button type="button" class="btn btn-primary" id="forgotBtn">Send reset code</button>
+        <p class="msg" id="forgotMsg"></p>
+        
+        <div class="otp-box" id="resetBox">
+          <label>Reset code</label>
+          <div class="input-field-group">
+            <i class="fa-solid fa-key field-icon"></i>
+            <input id="resetOtp" type="text" maxlength="6" placeholder="6-digit code">
+          </div>
+          
+          <label>New password</label>
+          <div class="input-field-group">
+            <i class="fa-solid fa-lock field-icon"></i>
+            <input id="resetPassword" type="password" minlength="8" placeholder="••••••••">
+            <i class="fa-solid fa-eye visibility-toggle" id="toggleResetPassword"></i>
+          </div>
+          
+          <button type="button" class="btn btn-outline" id="resetBtn">Update password</button>
+          <p class="msg" id="resetMsg"></p>
+        </div>
+        
+        <p style="margin-top:1rem;font-size:0.85rem; border-top: 1px solid var(--border); padding-top: 1rem;"><a href="register.html" style="color:var(--gold);">Create account instead</a></p>
+      </div>
+      
+    </div>
+  </div>
+
+  <script src="/js/ui.js"></script>
+  <script src="/js/common.js"></script>
+  <script>
+    let resetEmail = '';
+
+    function bindVisibilityToggle(toggleElementId, passwordInputFieldId) {
+      const toggleIcon = document.getElementById(toggleElementId);
+      const passwordField = document.getElementById(passwordInputFieldId);
+      
+      toggleIcon.addEventListener('click', () => {
+        if (passwordField.type === 'password') {
+          passwordField.type = 'text';
+          toggleIcon.classList.replace('fa-eye', 'fa-eye-slash');
+        } else {
+          passwordField.type = 'password';
+          toggleIcon.classList.replace('fa-eye-slash', 'fa-eye');
+        }
+      });
+    }
+
+    bindVisibilityToggle('toggleLoginPassword', 'loginPassword');
+    bindVisibilityToggle('toggleResetPassword', 'resetPassword');
+
+    function authMsg(el, text, type) {
+      if (typeof setCardMessage === 'function') setCardMessage(el, text, type);
+      else { el.textContent = text; el.className = 'msg ' + (type === 'success' ? 'ok' : type === 'error' ? 'err' : ''); }
+    }
+
+    document.getElementById('showForgotLink').addEventListener('click', (e) => {
+      e.preventDefault();
+      document.getElementById('forgotCard').style.display = 'block';
+      document.getElementById('loginCard').style.display = 'none';
+    });
+
+    document.getElementById('forgotBtn').addEventListener('click', async () => {
+      const msg = document.getElementById('forgotMsg');
+      resetEmail = document.getElementById('forgotEmail').value.trim();
+      try {
+        const data = await apiFetch('/api/auth/forgot-password', {
+          method: 'POST',
+          body: JSON.stringify({ email: resetEmail })
+        });
+        authMsg(msg, data.message, 'success');
+        document.getElementById('resetBox').classList.add('show');
+      } catch (e) {
+        authMsg(msg, e.message, 'error');
+      }
+    });
+
+    document.getElementById('resetBtn').addEventListener('click', async () => {
+      const msg = document.getElementById('resetMsg');
+      try {
+        await apiFetch('/api/auth/reset-password', {
+          method: 'POST',
+          body: JSON.stringify({
+            email: resetEmail || document.getElementById('forgotEmail').value.trim(),
+            otp: document.getElementById('resetOtp').value,
+            newPassword: document.getElementById('resetPassword').value
+          })
+        });
+        authMsg(msg, 'Password updated. You can log in.', 'success');
+        showToast('Password updated', 'success');
+        document.getElementById('forgotCard').style.display = 'none';
+        document.getElementById('loginCard').style.display = 'block';
+      } catch (e) {
+        authMsg(msg, e.message, 'error');
+      }
+    });
+
+    document.getElementById('loginBtn').addEventListener('click', async () => {
+      const msg = document.getElementById('loginMsg');
+      try {
+        const email = document.getElementById('loginEmail').value;
+        const data = await apiFetch('/api/auth/login', {
+          method: 'POST',
+          body: JSON.stringify({
+            email,
+            password: document.getElementById('loginPassword').value
+          })
+        });
+        setSession(data.accessToken, email);
+        authMsg(msg, 'Logged in! Redirecting…', 'success');
+        showToast('Welcome back', 'success');
+        updateNavbar();
+
+        const storedNext = sessionStorage.getItem('postLoginRedirect');
+        let next = storedNext || 'index.html';
+        if (!storedNext) {
+          const role = getTokenRole(data.accessToken);
+          if (role === 'ADMIN') {
+            next = 'admin-dashboard.html';
+          }
+        }
+        sessionStorage.removeItem('postLoginRedirect');
+        setTimeout(() => { location.href = next; }, 800);
+      } catch (e) {
+        authMsg(msg, e.message, 'error');
+      }
+    });
+  </script>
+</body>
+</html>
