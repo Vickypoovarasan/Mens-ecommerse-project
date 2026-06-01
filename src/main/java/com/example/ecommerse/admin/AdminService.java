@@ -183,6 +183,26 @@ public class AdminService {
 				.toList();
 	}
 
+	@Transactional(readOnly = true)
+	public List<AdminOrderFeedItem> completedOrders(LocalDate from, LocalDate to) {
+		return orderRepository.findByStatusOrderByCreatedAtDesc("DELIVERED").stream()
+				.filter(order -> {
+					LocalDate delivered = order.getActualDeliveryDate();
+					if (delivered == null) {
+						return false;
+					}
+					if (from != null && delivered.isBefore(from)) {
+						return false;
+					}
+					if (to != null && delivered.isAfter(to)) {
+						return false;
+					}
+					return true;
+				})
+				.map(this::toFeedItem)
+				.toList();
+	}
+
 	@Transactional
 	public AdminOrderFeedItem updateOrderStatus(Long orderId, UpdateOrderStatusRequest request) {
 		Order order = orderRepository.findById(orderId)
@@ -273,6 +293,7 @@ public class AdminService {
 				order.getStatus(),
 				order.getTotal(),
 				orderDate == null ? null : orderDate.toString(),
-				orderItemRepository.countByOrder_Id(order.getId()));
+				orderItemRepository.countByOrder_Id(order.getId()),
+				order.getActualDeliveryDate() == null ? null : order.getActualDeliveryDate().toString());
 	}
 }

@@ -8,5 +8,6 @@ public record AdminOrderFeedItem(
 		String status,
 		BigDecimal total,
 		String orderDate,
-		int itemCount) {
+		int itemCount,
+		String actualDeliveryDate) {
 }

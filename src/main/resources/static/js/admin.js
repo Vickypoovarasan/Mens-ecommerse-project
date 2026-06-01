@@ -82,6 +82,59 @@ function renderOrderHead(o) {
     <p class="order-meta">${escapeHtml(o.customerEmail)} · ${formatPrice(o.total)} · ${o.itemCount} item(s)</p>`;
 }
 
+function renderCompletedOrderRow(o) {
+  return `
+    <article class="order-card admin-order-row">
+      ${renderOrderHead(o)}
+      <p class="order-meta">Ordered: ${escapeHtml(o.orderDate || 'N/A')}</p>
+      <p class="order-meta">Delivered: ${escapeHtml(o.actualDeliveryDate || 'N/A')}</p>
+    </article>`;
+}
+
+async function loadCompletedOrders(from, to) {
+  const root = document.getElementById('completedRoot');
+  try {
+    const params = [];
+    if (from) params.push(`from=${encodeURIComponent(from)}`);
+    if (to) params.push(`to=${encodeURIComponent(to)}`);
+    const url = `/api/admin/orders/completed${params.length ? `?${params.join('&')}` : ''}`;
+    const orders = await apiFetch(url);
+
+    root.innerHTML = `
+      <div class="admin-product-form" style="margin-bottom:1rem;">
+        <div class="form-grid">
+          <label style="display:block;">
+            From
+            <input id="completedFrom" type="date" value="${escapeHtml(from || '')}">
+          </label>
+          <label style="display:block;">
+            To
+            <input id="completedTo" type="date" value="${escapeHtml(to || '')}">
+          </label>
+        </div>
+        <div style="margin-top:0.75rem;display:flex;gap:0.5rem;flex-wrap:wrap;">
+          <button type="button" class="btn btn-primary btn-sm" id="completedFilterBtn">Filter</button>
+          <button type="button" class="btn btn-outline btn-sm" id="completedClearBtn">Clear</button>
+        </div>
+      </div>
+      ${orders.length ? orders.map(renderCompletedOrderRow).join('') : '<p class="order-meta">No completed orders for this range.</p>'}`;
+
+    document.getElementById('completedFilterBtn').addEventListener('click', () => {
+      loadCompletedOrders(
+        document.getElementById('completedFrom').value,
+        document.getElementById('completedTo').value
+      );
+    });
+    document.getElementById('completedClearBtn').addEventListener('click', () => {
+      document.getElementById('completedFrom').value = '';
+      document.getElementById('completedTo').value = '';
+      loadCompletedOrders();
+    });
+  } catch (e) {
+    root.innerHTML = `<p class="error-msg">${escapeHtml(e.message)}</p>`;
+  }
+}
+
 function renderOrderRow(o, withCancel) {
   const next = NEXT_STATUS[o.status];
   const cancelBtn = withCancel && (o.status === 'PLACED' || o.status === 'CONFIRMED')
@@ -342,6 +395,7 @@ document.querySelectorAll('.admin-tabs .filter-btn').forEach(btn => {
     switchTab(btn.dataset.tab);
     if (btn.dataset.tab === 'dispatch') loadDispatch();
     if (btn.dataset.tab === 'returns') loadReturns();
+    if (btn.dataset.tab === 'completed') loadCompletedOrders();
     if (btn.dataset.tab === 'products') loadProducts();
   });
 });

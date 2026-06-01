@@ -27,6 +27,7 @@
     <div class="admin-tabs">
       <button type="button" class="filter-btn active" data-tab="dispatch">Dispatch</button>
       <button type="button" class="filter-btn" data-tab="returns">Returns</button>
+      <button type="button" class="filter-btn" data-tab="completed">Completed</button>
       <button type="button" class="filter-btn" data-tab="products">Products</button>
     </div>
 
@@ -38,6 +39,11 @@
     <section id="tab-returns" class="admin-panel hidden">
       <h2 class="detail-section-title">Return requests</h2>
       <div id="returnsRoot"><p class="loading">Loading…</p></div>
+    </section>
+
+    <section id="tab-completed" class="admin-panel hidden">
+      <h2 class="detail-section-title">Completed orders</h2>
+      <div id="completedRoot"><p class="loading">Loading…</p></div>
     </section>
 
     <section id="tab-products" class="admin-panel hidden">
