@@ -224,4 +224,8 @@ function generateIdempotencyKey() {
   return 'idk-' + Math.random().toString(36).slice(2) + Date.now().toString(36);
 }
 
-document.addEventListener('DOMContentLoaded', renderCheckout);
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', renderCheckout);
+} else {
+  renderCheckout();
+}

@@ -541,9 +541,51 @@ a:hover { text-decoration: underline; }
 .rule-hint { font-size: 0.8rem; color: var(--muted); margin: 1rem 0 0.25rem; }
 
 .admin-wrap { max-width: 1000px; }
+.admin-layout {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 1.5rem;
+  align-items: flex-start;
+}
+.admin-sidebar {
+  position: sticky;
+  top: 1rem;
+  align-self: start;
+}
+.admin-sidebar-header {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+.admin-sidebar-header .page-title {
+  margin: 0 0 0.5rem;
+  font-size: 1.4rem;
+}
+.admin-tabs {
+  display: grid;
+  gap: 0.75rem;
+}
+.admin-tabs .filter-btn {
+  width: 100%;
+  text-align: left;
+  padding: 0.85rem 1rem;
+  border-radius: 8px;
+}
+.admin-main {
+  min-width: 0;
+}
+@media (max-width: 900px) {
+  .admin-layout {
+    grid-template-columns: 1fr;
+  }
+  .admin-sidebar {
+    position: static;
+  }
+}
 .admin-hint { font-size: 0.85rem; color: var(--muted); margin-bottom: 1rem; }
 .admin-hint code { color: var(--gold); font-size: 0.8rem; }
-.admin-tabs { margin-bottom: 1.5rem; }
 .admin-panel.hidden { display: none; }
 .admin-order-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.75rem; }
 .admin-order-row { margin-bottom: 1rem; }

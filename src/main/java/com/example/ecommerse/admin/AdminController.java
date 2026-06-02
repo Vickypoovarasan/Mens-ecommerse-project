@@ -129,4 +129,3 @@ public class AdminController {
 		return ResponseEntity.ok(adminService.updatePromo(id, request));
 	}
 }
-

@@ -439,7 +439,19 @@ async function loadInventory() {
 
 function parseDateTimeLocal(value) {
   if (!value) return null;
-  const date = new Date(value);
+  const normalized = String(value).trim();
+  if (!normalized) return null;
+
+  let isoString = normalized;
+  if (/^\d{2}[\/\-]\d{2}[\/\-]\d{4}[ T]\d{2}:\d{2}$/.test(normalized)) {
+    const [datePart, timePart] = normalized.split(/[ T]/);
+    const [day, month, year] = datePart.split(/[-/]/);
+    isoString = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}T${timePart}`;
+  } else if (/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/.test(normalized)) {
+    isoString = normalized.replace(' ', 'T');
+  }
+
+  const date = new Date(isoString);
   if (Number.isNaN(date.getTime())) {
     throw new Error('Please enter a valid date/time in the promo validity fields.');
   }
@@ -503,8 +515,12 @@ async function loadPromotions() {
           document.getElementById('promoAdminActive').checked = promo.active;
           document.getElementById('promoAdminValidFrom').value = formatDateTimeLocal(promo.validFrom);
           document.getElementById('promoAdminValidUntil').value = formatDateTimeLocal(promo.validUntil);
-          promoCreateBtn.textContent = 'Update promo';
-          promoCancelBtn.classList.remove('hidden');
+          if (promoCreateBtn) {
+            promoCreateBtn.textContent = 'Update promo';
+          }
+          if (promoCancelBtn) {
+            promoCancelBtn.classList.remove('hidden');
+          }
           setCardMessage(promoAdminMsg, `Editing promo ${promo.code}.`, 'info');
           document.querySelector('.admin-product-form').scrollIntoView({ behavior: 'smooth' });
         });

@@ -13,6 +13,8 @@ public interface PromoCodeRepository extends JpaRepository<PromoCode, Long> {
 
 	Optional<PromoCode> findByCodeAndActiveTrue(String code);
 
+	boolean existsByCode(String code);
+
 	@Modifying(clearAutomatically = true, flushAutomatically = true)
 	@Query("""
 			UPDATE PromoCode p SET p.usedCount = p.usedCount + 1
