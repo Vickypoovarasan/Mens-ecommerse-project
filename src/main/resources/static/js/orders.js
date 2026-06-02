@@ -76,6 +76,7 @@ async function loadDetail(id) {
         <p class="order-meta">Placed ${formatOrderDate(o.orderDate)} · Payment ${escapeHtml(o.paymentStatus)} (${escapeHtml(o.paymentMethod)})</p>
         <p class="order-meta"><strong>Ship to:</strong> ${escapeHtml(o.shippingAddress || '—')}</p>
         <p class="order-meta">Expected delivery: ${o.expectedDeliveryDate || '—'}${o.actualDeliveryDate ? ` · Delivered ${o.actualDeliveryDate}` : ''}</p>
+        ${o.returnReason ? `<p class="order-meta"><strong>Return reason:</strong> ${escapeHtml(o.returnReason)}</p>` : ''}
 
         <h2 class="detail-section-title">Tracking</h2>
         <ol class="tracking-stepper">
@@ -114,6 +115,10 @@ async function loadDetail(id) {
           <p class="rule-hint">${escapeHtml(o.cancelMessage)}</p>
           <button type="button" class="btn btn-outline" id="cancelBtn" ${o.canCancel ? '' : 'disabled'}>Cancel Order</button>
           <p class="rule-hint">${escapeHtml(o.returnMessage)}</p>
+          ${o.canReturn ? `
+            <label for="returnReason" class="form-label" style="display:block;margin-top:1rem;margin-bottom:0.5rem;font-weight:600;">Reason for return</label>
+            <textarea id="returnReason" rows="4" style="width:100%;padding:0.85rem;border:1px solid rgba(148,163,184,0.4);border-radius:0.75rem;background:rgba(15,20,25,0.9);color:var(--text);resize:vertical;margin-bottom:0.75rem;" placeholder="Describe why you're returning this product"></textarea>
+          ` : ''}
           <button type="button" class="btn btn-outline" id="returnBtn" ${o.canReturn ? '' : 'disabled'}>Request Return</button>
           <p class="msg" id="actionMsg"></p>
         </div>
@@ -134,8 +139,17 @@ async function loadDetail(id) {
 
     document.getElementById('returnBtn').addEventListener('click', async () => {
       if (!confirm('Request a return for this order?')) return;
+      const reasonEl = document.getElementById('returnReason');
+      const reason = reasonEl ? reasonEl.value.trim() : '';
+      if (!reason) {
+        setCardMessage(msg, 'Please provide a reason for the return.', 'error');
+        return;
+      }
       try {
-        await apiFetch(`/api/orders/${id}/return`, { method: 'POST' });
+        await apiFetch(`/api/orders/${id}/return`, {
+          method: 'POST',
+          body: JSON.stringify({ reason })
+        });
         setCardMessage(msg, 'Return requested.', 'success');
         showToast('Return requested', 'success');
         loadDetail(id);

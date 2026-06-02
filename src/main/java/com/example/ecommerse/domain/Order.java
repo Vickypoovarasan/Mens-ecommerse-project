@@ -65,6 +65,9 @@ public class Order {
 	@Column(name = "actual_delivery_date")
 	private LocalDate actualDeliveryDate;
 
+	@Column(name = "return_reason", length = 500)
+	private String returnReason;
+
 	@Column(name = "created_at", nullable = false, insertable = false, updatable = false)
 	private Instant createdAt;
 
@@ -184,6 +187,14 @@ public class Order {
 
 	public void setActualDeliveryDate(LocalDate actualDeliveryDate) {
 		this.actualDeliveryDate = actualDeliveryDate;
+	}
+
+	public String getReturnReason() {
+		return returnReason;
+	}
+
+	public void setReturnReason(String returnReason) {
+		this.returnReason = returnReason;
 	}
 
 	public Instant getCreatedAt() {

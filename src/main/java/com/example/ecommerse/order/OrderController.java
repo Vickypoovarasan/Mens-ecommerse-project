@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.ecommerse.order.dto.CheckoutRequest;
 import com.example.ecommerse.order.dto.CheckoutResponse;
 import com.example.ecommerse.order.dto.OrderDetailResponse;
+import com.example.ecommerse.order.dto.OrderReturnRequest;
 import com.example.ecommerse.order.dto.OrderSummaryResponse;
 
 import jakarta.validation.Valid;
@@ -52,9 +53,12 @@ public class OrderController {
 	}
 
 	@PostMapping("/{id}/return")
-	public ResponseEntity<OrderDetailResponse> requestReturn(@PathVariable Long id, Authentication authentication) {
+	public ResponseEntity<OrderDetailResponse> requestReturn(
+			@PathVariable Long id,
+			@Valid @RequestBody OrderReturnRequest request,
+			Authentication authentication) {
 		Long userId = (Long) authentication.getPrincipal();
-		return ResponseEntity.ok(orderService.requestReturn(userId, id));
+		return ResponseEntity.ok(orderService.requestReturn(userId, id, request.reason()));
 	}
 
 	@PostMapping("/checkout")

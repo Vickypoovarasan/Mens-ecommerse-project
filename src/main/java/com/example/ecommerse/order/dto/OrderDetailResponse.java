@@ -23,5 +23,6 @@ public record OrderDetailResponse(
 		boolean canCancel,
 		String cancelMessage,
 		boolean canReturn,
-		String returnMessage) {
+		String returnMessage,
+		String returnReason) {
 }

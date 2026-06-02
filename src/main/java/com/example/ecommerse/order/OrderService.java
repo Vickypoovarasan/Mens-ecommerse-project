@@ -13,7 +13,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.example.ecommerse.domain.Order;
 import com.example.ecommerse.domain.OrderItem;
-import com.example.ecommerse.domain.PaymentLedger;
 import com.example.ecommerse.domain.ProductVariant;
 import com.example.ecommerse.order.dto.OrderDetailResponse;
 import com.example.ecommerse.order.dto.OrderItemResponse;
@@ -90,12 +89,13 @@ public class OrderService {
 	}
 
 	@Transactional
-	public OrderDetailResponse requestReturn(Long userId, Long orderId) {
+	public OrderDetailResponse requestReturn(Long userId, Long orderId, String reason) {
 		Order order = loadOwnedOrder(userId, orderId);
 		if (!canReturn(order)) {
 			throw new IllegalArgumentException(returnMessage(order));
 		}
 		order.setStatus("RETURN_REQUESTED");
+		order.setReturnReason(reason == null ? null : reason.trim());
 		orderRepository.save(order);
 		return toDetail(order);
 	}
@@ -141,7 +141,8 @@ public class OrderService {
 				canCancel(order),
 				cancelMessage(order),
 				canReturn(order),
-				returnMessage(order));
+				returnMessage(order),
+				order.getReturnReason());
 	}
 
 	private OrderItemResponse toItemResponse(OrderItem item) {

@@ -21,7 +21,6 @@ import com.example.ecommerse.admin.dto.UpdateOrderStatusRequest;
 import com.example.ecommerse.domain.Order;
 import com.example.ecommerse.domain.OrderItem;
 import com.example.ecommerse.domain.PromoCode;
-import com.example.ecommerse.domain.PaymentLedger;
 import com.example.ecommerse.domain.Product;
 import com.example.ecommerse.domain.ProductVariant;
 import com.example.ecommerse.repo.OrderItemRepository;
@@ -370,6 +369,7 @@ public class AdminService {
 				order.getTotal(),
 				orderDate == null ? null : orderDate.toString(),
 				orderItemRepository.countByOrder_Id(order.getId()),
-				order.getActualDeliveryDate() == null ? null : order.getActualDeliveryDate().toString());
+				order.getActualDeliveryDate() == null ? null : order.getActualDeliveryDate().toString(),
+				order.getReturnReason());
 	}
 }

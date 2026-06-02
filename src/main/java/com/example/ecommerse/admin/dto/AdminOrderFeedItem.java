@@ -9,5 +9,6 @@ public record AdminOrderFeedItem(
 		BigDecimal total,
 		String orderDate,
 		int itemCount,
-		String actualDeliveryDate) {
+		String actualDeliveryDate,
+		String returnReason) {
 }

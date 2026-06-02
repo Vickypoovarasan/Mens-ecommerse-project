@@ -79,7 +79,8 @@ function renderOrderHead(o) {
       <strong>Order #${o.id}</strong>
       <span class="status-pill">${escapeHtml(o.status)}</span>
     </div>
-    <p class="order-meta">${escapeHtml(o.customerEmail)} · ${formatPrice(o.total)} · ${o.itemCount} item(s)</p>`;
+    <p class="order-meta">${escapeHtml(o.customerEmail)} · ${formatPrice(o.total)} · ${o.itemCount} item(s)</p>
+    ${o.returnReason ? `<p class="order-meta"><strong>Return reason:</strong> ${escapeHtml(o.returnReason)}</p>` : ''}`;
 }
 
 function renderCompletedOrderRow(o) {
