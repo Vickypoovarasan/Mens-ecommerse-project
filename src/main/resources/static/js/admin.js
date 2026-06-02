@@ -390,6 +390,349 @@ async function openVariantPanel(productId) {
   }
 }
 
+async function loadInventory() {
+  const root = document.getElementById('inventoryRoot');
+  try {
+    const products = await apiFetch('/api/admin/products');
+    if (!products.length) {
+      root.innerHTML = '<p class="order-meta">No products available.</p>';
+      return;
+    }
+
+    const activeCount = products.filter(p => p.active).length;
+    const variantsByProduct = await Promise.all(products.map(p => apiFetch(`/api/admin/products/${p.id}/variants`)));
+    const lowStockThreshold = 5;
+    const lowStockItems = [];
+
+    products.forEach((product, index) => {
+      const variants = variantsByProduct[index] || [];
+      variants.forEach(v => {
+        if (v.active && v.stock <= lowStockThreshold) {
+          lowStockItems.push({ product, variant: v });
+        }
+      });
+    });
+
+    root.innerHTML = `
+      <div class="admin-product-form" style="margin-bottom:1rem;">
+        <div class="form-grid">
+          <div><strong>Total products</strong><p>${products.length}</p></div>
+          <div><strong>Active products</strong><p>${activeCount}</p></div>
+          <div><strong>Low stock variants</strong><p>${lowStockItems.length}</p></div>
+        </div>
+      </div>
+      ${lowStockItems.length ? `
+        <div class="order-list">
+          ${lowStockItems.map(item => `
+            <article class="order-card admin-order-row">
+              <strong>${escapeHtml(item.product.name)} — ${escapeHtml(item.variant.sku)}</strong>
+              <p class="order-meta">${escapeHtml(item.variant.size)} / ${escapeHtml(item.variant.color)} · Stock: ${item.variant.stock}</p>
+            </article>
+          `).join('')}
+        </div>
+      ` : '<p class="order-meta">No low-stock variants currently.</p>'}
+    `;
+  } catch (e) {
+    root.innerHTML = `<p class="error-msg">${escapeHtml(e.message)}</p>`;
+  }
+}
+
+function parseDateTimeLocal(value) {
+  if (!value) return null;
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    throw new Error('Please enter a valid date/time in the promo validity fields.');
+  }
+  return date.toISOString();
+}
+
+function formatDateTimeLocal(value) {
+  if (!value) return '';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return '';
+  const offsetMs = date.getTimezoneOffset() * 60000;
+  const local = new Date(date.getTime() - offsetMs);
+  return local.toISOString().slice(0, 16);
+}
+
+async function loadPromotions() {
+  const root = document.getElementById('promotionsRoot');
+  if (!root) return;
+  root.innerHTML = `<p class="loading">Loading…</p>`;
+
+  let loadError = null;
+  let promos = [];
+  let editingPromoId = null;
+
+  async function refreshPromoList() {
+    try {
+      const result = await apiFetch('/api/admin/promos');
+      promos = Array.isArray(result) ? result : [];
+      const listRoot = document.getElementById('promoListRoot');
+      if (!listRoot) return;
+      if (!promos.length) {
+        listRoot.innerHTML = '<p class="order-meta">No promo codes created yet.</p>';
+        return;
+      }
+      listRoot.innerHTML = `
+        <div class="order-list">
+          ${promos.map(promo => `
+            <article class="order-card admin-order-row" data-id="${promo.id}">
+              <strong>${escapeHtml(promo.code)}</strong>
+              <p class="order-meta">Type: ${escapeHtml(promo.discountType)} · Value: ${formatPrice(promo.discountValue)}</p>
+              <p class="order-meta">Min subtotal: ${formatPrice(promo.minSubtotal || 0)} · Uses: ${promo.usedCount}/${promo.maxUses || '∞'}</p>
+              <p class="order-meta">Active: ${promo.active ? 'Yes' : 'No'} · Valid: ${promo.validFrom || 'N/A'} → ${promo.validUntil || 'N/A'}</p>
+              <button type="button" class="link-btn edit-promo" data-id="${promo.id}">Edit</button>
+            </article>
+          `).join('')}
+        </div>
+      `;
+
+      listRoot.querySelectorAll('.edit-promo').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const id = btn.dataset.id;
+          const promo = promos.find(x => String(x.id) === id);
+          if (!promo) return;
+
+          editingPromoId = id;
+          document.getElementById('promoAdminCode').value = promo.code || '';
+          document.getElementById('promoAdminType').value = promo.discountType || 'PERCENT';
+          document.getElementById('promoAdminValue').value = promo.discountValue || 0;
+          document.getElementById('promoAdminSubtotal').value = promo.minSubtotal || 0;
+          document.getElementById('promoAdminMaxUses').value = promo.maxUses || '';
+          document.getElementById('promoAdminActive').checked = promo.active;
+          document.getElementById('promoAdminValidFrom').value = formatDateTimeLocal(promo.validFrom);
+          document.getElementById('promoAdminValidUntil').value = formatDateTimeLocal(promo.validUntil);
+          promoCreateBtn.textContent = 'Update promo';
+          promoCancelBtn.classList.remove('hidden');
+          setCardMessage(promoAdminMsg, `Editing promo ${promo.code}.`, 'info');
+          document.querySelector('.admin-product-form').scrollIntoView({ behavior: 'smooth' });
+        });
+      });
+    } catch (e) {
+      const loadErrorEl = document.getElementById('promoLoadError');
+      if (loadErrorEl) loadErrorEl.textContent = e.message || 'Unable to load promo codes.';
+    }
+  }
+
+  root.innerHTML = `
+    <section class="admin-product-form" style="margin-bottom:1.5rem;">
+      <h3 class="detail-section-title">Create promo code</h3>
+      <div class="form-grid">
+        <input id="promoAdminCode" placeholder="Promo code" type="text">
+        <select id="promoAdminType">
+          <option value="PERCENT">PERCENT</option>
+          <option value="FIXED">FIXED</option>
+        </select>
+        <input id="promoAdminValue" placeholder="Discount value" type="number" step="0.01" min="0" value="0">
+        <input id="promoAdminSubtotal" placeholder="Min subtotal" type="number" step="0.01" min="0" value="0">
+        <input id="promoAdminMaxUses" placeholder="Max uses" type="number" min="0">
+        <input id="promoAdminValidFrom" placeholder="Valid from" type="datetime-local">
+        <input id="promoAdminValidUntil" placeholder="Valid until" type="datetime-local">
+      </div>
+      <div style="margin-top:0.75rem; display:flex; gap:0.5rem; flex-wrap:wrap; align-items:center;">
+        <button type="button" class="btn btn-primary btn-sm" id="promoCreateBtn">Create promo</button>
+        <button type="button" class="btn btn-outline btn-sm hidden" id="promoCancelBtn">Cancel edit</button>
+        <label class="admin-toggle-label"><input id="promoAdminActive" type="checkbox" checked> Active</label>
+      </div>
+      <p class="msg" id="promoAdminMsg" style="margin-top:0.75rem;"></p>
+      <p class="error-msg" id="promoLoadError">${loadError ? escapeHtml(loadError) : ''}</p>
+    </section>
+    <section class="admin-product-form" style="margin-bottom:1.5rem;">
+      <h3 class="detail-section-title">Validate promo code</h3>
+      <div class="form-grid">
+        <input id="promoValidateCode" placeholder="Promo code" type="text">
+        <input id="promoValidateSubtotal" placeholder="Order subtotal" type="number" step="0.01" min="0" value="0">
+      </div>
+      <div style="margin-top:0.75rem; display:flex; gap:0.5rem; flex-wrap:wrap;">
+        <button type="button" class="btn btn-primary btn-sm" id="promoValidateBtn">Validate</button>
+        <button type="button" class="btn btn-outline btn-sm" id="promoClearBtn">Clear</button>
+      </div>
+    </section>
+    <section class="admin-product-form">
+      <h3 class="detail-section-title">Saved promo codes</h3>
+      <div id="promoListRoot"><p class="order-meta">Loading promo codes…</p></div>
+    </section>
+  `;
+
+  const promoCreateBtn = document.getElementById('promoCreateBtn');
+  const promoCancelBtn = document.getElementById('promoCancelBtn');
+  const promoAdminMsg = document.getElementById('promoAdminMsg');
+
+  function resetPromoForm() {
+    editingPromoId = null;
+    document.getElementById('promoAdminCode').value = '';
+    document.getElementById('promoAdminType').value = 'PERCENT';
+    document.getElementById('promoAdminValue').value = '0';
+    document.getElementById('promoAdminSubtotal').value = '0';
+    document.getElementById('promoAdminMaxUses').value = '';
+    document.getElementById('promoAdminActive').checked = true;
+    document.getElementById('promoAdminValidFrom').value = '';
+    document.getElementById('promoAdminValidUntil').value = '';
+    promoCreateBtn.textContent = 'Create promo';
+    promoCancelBtn?.classList.add('hidden');
+    setCardMessage(promoAdminMsg, '', 'info');
+  }
+
+  promoCreateBtn?.addEventListener('click', async () => {
+    const code = document.getElementById('promoAdminCode').value.trim();
+    const discountType = document.getElementById('promoAdminType').value;
+    const discountValue = Number(document.getElementById('promoAdminValue').value) || 0;
+    const minSubtotal = Number(document.getElementById('promoAdminSubtotal').value) || 0;
+    const maxUsesValue = document.getElementById('promoAdminMaxUses').value;
+    const maxUses = maxUsesValue ? Number(maxUsesValue) : null;
+    const active = document.getElementById('promoAdminActive').checked;
+    const validFromValue = document.getElementById('promoAdminValidFrom').value;
+    const validUntilValue = document.getElementById('promoAdminValidUntil').value;
+
+    let validFrom = null;
+    let validUntil = null;
+    try {
+      validFrom = parseDateTimeLocal(validFromValue);
+      validUntil = parseDateTimeLocal(validUntilValue);
+    } catch (err) {
+      setCardMessage(promoAdminMsg, err.message, 'error');
+      return;
+    }
+
+    if (!code) {
+      setCardMessage(promoAdminMsg, 'Promo code is required.', 'error');
+      return;
+    }
+    if (discountValue <= 0) {
+      setCardMessage(promoAdminMsg, 'Discount value must be greater than zero.', 'error');
+      return;
+    }
+
+    const url = editingPromoId ? `/api/admin/promos/${editingPromoId}` : '/api/admin/promos';
+    const method = editingPromoId ? 'PUT' : 'POST';
+
+    try {
+      await apiFetch(url, {
+        method,
+        body: JSON.stringify({
+          code,
+          discountType,
+          discountValue,
+          minSubtotal,
+          maxUses,
+          active,
+          validFrom,
+          validUntil
+        })
+      });
+      setCardMessage(promoAdminMsg,
+        editingPromoId
+          ? `Promo code ${code} updated successfully.`
+          : `Promo code ${code} created successfully.`,
+        'success');
+      resetPromoForm();
+      await refreshPromoList();
+    } catch (e) {
+      setCardMessage(promoAdminMsg, e.message, 'error');
+    }
+  });
+
+  promoCancelBtn?.addEventListener('click', () => {
+    resetPromoForm();
+  });
+
+  document.getElementById('promoValidateBtn')?.addEventListener('click', async () => {
+    const msg = document.getElementById('promoAdminMsg');
+    const code = document.getElementById('promoValidateCode').value.trim();
+    const subtotal = Number(document.getElementById('promoValidateSubtotal').value) || 0;
+    if (!code) {
+      setCardMessage(msg, 'Enter a promo code to validate.', 'error');
+      return;
+    }
+
+    try {
+      const result = await apiFetch('/api/promos/validate', {
+        method: 'POST',
+        body: JSON.stringify({ code, subtotal })
+      });
+      const message = result.valid
+        ? `Promo ${result.code} is valid for ${formatPrice(result.discountAmount)} discount.`
+        : (result.message || 'Promo code is not valid.');
+      setCardMessage(msg, message, result.valid ? 'success' : 'error');
+    } catch (e) {
+      setCardMessage(msg, e.message, 'error');
+    }
+  });
+
+  document.getElementById('promoClearBtn')?.addEventListener('click', () => {
+    document.getElementById('promoValidateCode').value = '';
+    document.getElementById('promoValidateSubtotal').value = '0';
+    setCardMessage(document.getElementById('promoAdminMsg'), '', 'info');
+  });
+
+  await refreshPromoList();
+}
+
+async function loadCustomers() {
+  const root = document.getElementById('customersRoot');
+  try {
+    const orders = await apiFetch('/api/admin/orders/completed');
+    if (!orders.length) {
+      root.innerHTML = '<p class="order-meta">No completed orders yet.</p>';
+      return;
+    }
+
+    const customerStats = orders.reduce((acc, order) => {
+      acc[order.customerEmail] = (acc[order.customerEmail] || 0) + 1;
+      return acc;
+    }, {});
+    const topCustomers = Object.entries(customerStats)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 8);
+
+    root.innerHTML = `
+      <div class="admin-product-form" style="margin-bottom:1rem;">
+        <div class="form-grid">
+          <div><strong>Unique customers</strong><p>${Object.keys(customerStats).length}</p></div>
+          <div><strong>Completed orders</strong><p>${orders.length}</p></div>
+          <div><strong>Top buyer orders</strong><p>${topCustomers.length}</p></div>
+        </div>
+      </div>
+      <div class="order-list">
+        ${topCustomers.map(([email, count]) => `
+          <article class="order-card admin-order-row">
+            <strong>${escapeHtml(email)}</strong>
+            <p class="order-meta">Completed orders: ${count}</p>
+          </article>
+        `).join('')}
+      </div>
+    `;
+  } catch (e) {
+    root.innerHTML = `<p class="error-msg">${escapeHtml(e.message)}</p>`;
+  }
+}
+
+async function loadReports() {
+  const root = document.getElementById('reportsRoot');
+  try {
+    const [dispatch, completed] = await Promise.all([
+      apiFetch('/api/admin/orders/dispatch'),
+      apiFetch('/api/admin/orders/completed')
+    ]);
+    const revenue = completed.reduce((sum, order) => sum + Number(order.total), 0);
+    const avgOrder = completed.length ? revenue / completed.length : 0;
+    root.innerHTML = `
+      <div class="admin-product-form" style="margin-bottom:1rem;">
+        <div class="form-grid">
+          <div><strong>Dispatch queue</strong><p>${dispatch.length}</p></div>
+          <div><strong>Completed orders</strong><p>${completed.length}</p></div>
+          <div><strong>Total revenue</strong><p>${formatPrice(revenue)}</p></div>
+          <div><strong>Average order</strong><p>${formatPrice(avgOrder)}</p></div>
+        </div>
+      </div>
+      <p class="order-meta">Reports are based on available dispatch and delivered order data.</p>
+    `;
+  } catch (e) {
+    root.innerHTML = `<p class="error-msg">${escapeHtml(e.message)}</p>`;
+  }
+}
+
 document.querySelectorAll('.admin-tabs .filter-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     switchTab(btn.dataset.tab);
@@ -397,6 +740,10 @@ document.querySelectorAll('.admin-tabs .filter-btn').forEach(btn => {
     if (btn.dataset.tab === 'returns') loadReturns();
     if (btn.dataset.tab === 'completed') loadCompletedOrders();
     if (btn.dataset.tab === 'products') loadProducts();
+    if (btn.dataset.tab === 'inventory') loadInventory();
+    if (btn.dataset.tab === 'promotions') loadPromotions();
+    if (btn.dataset.tab === 'customers') loadCustomers();
+    if (btn.dataset.tab === 'reports') loadReports();
   });
 });
 

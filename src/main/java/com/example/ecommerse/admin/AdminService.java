@@ -13,17 +13,21 @@ import org.springframework.transaction.annotation.Transactional;
 import com.example.ecommerse.admin.dto.AdminOrderFeedItem;
 import com.example.ecommerse.admin.dto.AdminProductRequest;
 import com.example.ecommerse.admin.dto.AdminProductResponse;
+import com.example.ecommerse.admin.dto.AdminPromoRequest;
+import com.example.ecommerse.admin.dto.AdminPromoResponse;
 import com.example.ecommerse.admin.dto.AdminVariantRequest;
 import com.example.ecommerse.admin.dto.AdminVariantResponse;
 import com.example.ecommerse.admin.dto.UpdateOrderStatusRequest;
 import com.example.ecommerse.domain.Order;
 import com.example.ecommerse.domain.OrderItem;
+import com.example.ecommerse.domain.PromoCode;
 import com.example.ecommerse.domain.PaymentLedger;
 import com.example.ecommerse.domain.Product;
 import com.example.ecommerse.domain.ProductVariant;
 import com.example.ecommerse.repo.OrderItemRepository;
 import com.example.ecommerse.repo.OrderRepository;
 import com.example.ecommerse.repo.PaymentLedgerRepository;
+import com.example.ecommerse.repo.PromoCodeRepository;
 import com.example.ecommerse.repo.ProductRepository;
 import com.example.ecommerse.repo.ProductVariantRepository;
 
@@ -43,18 +47,21 @@ public class AdminService {
 	private final OrderRepository orderRepository;
 	private final OrderItemRepository orderItemRepository;
 	private final PaymentLedgerRepository paymentLedgerRepository;
+	private final PromoCodeRepository promoCodeRepository;
 
 	public AdminService(
 			ProductRepository productRepository,
 			ProductVariantRepository variantRepository,
 			OrderRepository orderRepository,
 			OrderItemRepository orderItemRepository,
-			PaymentLedgerRepository paymentLedgerRepository) {
+			PaymentLedgerRepository paymentLedgerRepository,
+			PromoCodeRepository promoCodeRepository) {
 		this.productRepository = productRepository;
 		this.variantRepository = variantRepository;
 		this.orderRepository = orderRepository;
 		this.orderItemRepository = orderItemRepository;
 		this.paymentLedgerRepository = paymentLedgerRepository;
+		this.promoCodeRepository = promoCodeRepository;
 	}
 
 	@Transactional(readOnly = true)
@@ -62,6 +69,61 @@ public class AdminService {
 		return productRepository.findAllByOrderByNameAsc().stream()
 				.map(this::toProductResponse)
 				.toList();
+	}
+
+	@Transactional(readOnly = true)
+	public List<AdminPromoResponse> listPromos() {
+		return promoCodeRepository.findAll().stream()
+				.map(this::toPromoResponse)
+				.toList();
+	}
+
+	@Transactional
+	public AdminPromoResponse createPromo(AdminPromoRequest request) {
+		String normalizedCode = request.code().trim().toUpperCase();
+		if (promoCodeRepository.existsByCode(normalizedCode)) {
+			throw new IllegalArgumentException("Promo code already exists: " + normalizedCode);
+		}
+		if (request.validFrom() != null && request.validUntil() != null && request.validFrom().isAfter(request.validUntil())) {
+			throw new IllegalArgumentException("Promo valid from date must come before valid until date");
+		}
+
+		PromoCode promo = new PromoCode();
+		promo.setCode(normalizedCode);
+		promo.setDiscountType(request.discountType().trim().toUpperCase());
+		promo.setDiscountValue(request.discountValue());
+		promo.setMinSubtotal(request.minSubtotal());
+		promo.setMaxUses(request.maxUses());
+		promo.setUsedCount(0);
+		promo.setActive(request.active());
+		promo.setValidFrom(request.validFrom());
+		promo.setValidUntil(request.validUntil());
+
+		return toPromoResponse(promoCodeRepository.save(promo));
+	}
+
+	@Transactional
+	public AdminPromoResponse updatePromo(Long id, AdminPromoRequest request) {
+		PromoCode promo = promoCodeRepository.findById(id)
+				.orElseThrow(() -> new IllegalArgumentException("Promo code not found"));
+		String normalizedCode = request.code().trim().toUpperCase();
+		if (!normalizedCode.equals(promo.getCode()) && promoCodeRepository.existsByCode(normalizedCode)) {
+			throw new IllegalArgumentException("Promo code already exists: " + normalizedCode);
+		}
+		if (request.validFrom() != null && request.validUntil() != null && request.validFrom().isAfter(request.validUntil())) {
+			throw new IllegalArgumentException("Promo valid from date must come before valid until date");
+		}
+
+		promo.setCode(normalizedCode);
+		promo.setDiscountType(request.discountType().trim().toUpperCase());
+		promo.setDiscountValue(request.discountValue());
+		promo.setMinSubtotal(request.minSubtotal());
+		promo.setMaxUses(request.maxUses());
+		promo.setActive(request.active());
+		promo.setValidFrom(request.validFrom());
+		promo.setValidUntil(request.validUntil());
+
+		return toPromoResponse(promoCodeRepository.save(promo));
 	}
 
 	@Transactional
@@ -283,6 +345,20 @@ public class AdminService {
 				product.getImageUrl(),
 				product.getBasePrice(),
 				product.isActive());
+	}
+
+	private AdminPromoResponse toPromoResponse(PromoCode promo) {
+		return new AdminPromoResponse(
+				promo.getId(),
+				promo.getCode(),
+				promo.getDiscountType(),
+				promo.getDiscountValue(),
+				promo.getMinSubtotal(),
+				promo.getMaxUses(),
+				promo.getUsedCount(),
+				promo.isActive(),
+				promo.getValidFrom(),
+				promo.getValidUntil());
 	}
 
 	private AdminOrderFeedItem toFeedItem(Order order) {

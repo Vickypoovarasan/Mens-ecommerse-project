@@ -19,6 +19,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.ecommerse.admin.dto.AdminOrderFeedItem;
 import com.example.ecommerse.admin.dto.AdminProductRequest;
 import com.example.ecommerse.admin.dto.AdminProductResponse;
+import com.example.ecommerse.admin.dto.AdminPromoRequest;
+import com.example.ecommerse.admin.dto.AdminPromoResponse;
 import com.example.ecommerse.admin.dto.AdminVariantRequest;
 import com.example.ecommerse.admin.dto.AdminVariantResponse;
 import com.example.ecommerse.admin.dto.AdminVariantStockRequest;
@@ -110,4 +112,21 @@ public class AdminController {
 	public ResponseEntity<AdminOrderFeedItem> approveReturn(@PathVariable Long id) {
 		return ResponseEntity.ok(adminService.approveReturn(id));
 	}
+	@GetMapping("/promos")
+	public ResponseEntity<List<AdminPromoResponse>> listPromos() {
+		return ResponseEntity.ok(adminService.listPromos());
+	}
+
+	@PostMapping("/promos")
+	public ResponseEntity<AdminPromoResponse> createPromo(@Valid @RequestBody AdminPromoRequest request) {
+		return ResponseEntity.ok(adminService.createPromo(request));
+	}
+
+	@PutMapping("/promos/{id}")
+	public ResponseEntity<AdminPromoResponse> updatePromo(
+			@PathVariable Long id,
+			@Valid @RequestBody AdminPromoRequest request) {
+		return ResponseEntity.ok(adminService.updatePromo(id, request));
+	}
 }
+
