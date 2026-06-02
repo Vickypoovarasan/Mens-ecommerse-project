@@ -44,6 +44,7 @@ a:hover { text-decoration: underline; }
   font-weight: 600;
   color: var(--gold);
   letter-spacing: 0.04em;
+  col
 }
 
 .nav-links { display: flex; gap: 1.5rem; align-items: center; }

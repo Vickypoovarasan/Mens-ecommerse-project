@@ -5,12 +5,7 @@ let product = null;
 let selectedSize = null;
 let selectedColor = null;
 let selectedVariant = null;
-
-const MOCK_REVIEWS = [
-  { author: 'Rahul M.', stars: 5, text: 'Excellent tailoring and fabric quality. Fits perfectly after minor alterations.' },
-  { author: 'James K.', stars: 4, text: 'Great value for premium menswear. Delivery was on time.' },
-  { author: 'Arun S.', stars: 5, text: 'The navy suit looks sharp. Highly recommend for formal events.' }
-];
+let selectedReviewStars = 5;
 
 async function loadProduct() {
   const main = document.getElementById('detailMain');
@@ -36,7 +31,35 @@ function renderProduct() {
   selectedColor = colors[0] || null;
   updateVariant();
 
+  const loggedIn = getSession().loggedIn;
   const stars = '★'.repeat(Math.round(p.averageRating)) + '☆'.repeat(5 - Math.round(p.averageRating));
+  const reviewListHtml = p.reviewCount === 0
+    ? '<p style="color: var(--muted); margin-bottom: 1rem;">No reviews yet.</p>'
+    : p.reviews.map(r => `
+            <div class="review-item" style="margin-bottom: 1rem; border-bottom: 1px solid #e5e7eb; padding-bottom: 1rem;">
+              <div style="display:flex; justify-content:space-between; align-items:center; gap: 0.75rem; flex-wrap:wrap;">
+                <strong>${escapeHtml(r.authorName)}</strong>
+                <span>${'★'.repeat(r.stars)}${'☆'.repeat(5 - r.stars)}</span>
+              </div>
+              <p style="color: var(--muted); margin: 0.35rem 0 0.25rem;">${escapeHtml(r.comment || '')}</p>
+              <div style="font-size:0.85rem; color: var(--muted);">${escapeHtml(r.createdAt ? new Date(r.createdAt).toLocaleDateString() : '')}</div>
+            </div>
+          `).join('');
+
+  const reviewFormHtml = loggedIn
+    ? p.canReview
+      ? `
+            <div class="review-form" style="margin-top: 1.5rem;">
+              <h3 style="font-family: var(--font-display); margin-bottom: 0.75rem;">Share your review</h3>
+              <div class="star-picker" id="reviewStars" style="margin-bottom: 1rem; font-size: 1.75rem;">
+                ${[1,2,3,4,5].map(s => `<button type="button" class="star-btn ${s <= selectedReviewStars ? 'active' : ''}" data-stars="${s}" style="background:none;border:none;cursor:pointer;color:${s <= selectedReviewStars ? '#f59e0b' : '#d1d5db'};font-size:1.75rem;">${s <= selectedReviewStars ? '★' : '☆'}</button>`).join('')}
+              </div>
+              <textarea id="reviewComment" rows="4" placeholder="Write your comment (optional)" style="width:100%;padding:0.75rem;border:1px solid #cbd5e1;border-radius:0.5rem;resize:vertical;"></textarea>
+              <button type="button" class="btn btn-primary" id="submitReviewBtn" style="margin-top:0.75rem;">Submit review</button>
+            </div>
+          `
+      : '<p style="color: var(--muted); margin-top: 1rem;">Reviews are available only after delivery.</p>'
+    : '<p style="color: var(--muted); margin-top: 1rem;"><a href="login.html">Sign in</a> to write a review.</p>';
 
   document.getElementById('detailMain').innerHTML = `
     <div class="detail-layout animate-fade-in">
@@ -69,16 +92,12 @@ function renderProduct() {
 
         <div class="reviews-box">
           <h2 style="font-family: var(--font-display); font-size: 1.5rem; margin-bottom: 1rem;">Customer Reviews</h2>
-          ${MOCK_REVIEWS.map(r => `
-            <div class="review-item">
-              <strong>${escapeHtml(r.author)}</strong> ${'★'.repeat(r.stars)}
-              <p style="color: var(--muted); margin-top: 0.35rem;">${escapeHtml(r.text)}</p>
-            </div>
-          `).join('')}
+          ${reviewListHtml}
+          ${reviewFormHtml}
         </div>
       </div>
     </div>
-  `;
+`;
 
   bindVariantButtons();
   bindActions();

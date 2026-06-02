@@ -16,16 +16,21 @@ import com.example.ecommerse.domain.Product;
 import com.example.ecommerse.domain.ProductVariant;
 import com.example.ecommerse.repo.ProductRepository;
 import com.example.ecommerse.repo.ProductVariantRepository;
+import com.example.ecommerse.review.ReviewService;
+import com.example.ecommerse.review.dto.ReviewResponse;
 
 @Service
 public class ProductCatalogService {
 
 	private final ProductRepository productRepository;
 	private final ProductVariantRepository variantRepository;
+	private final ReviewService reviewService;
 
-	public ProductCatalogService(ProductRepository productRepository, ProductVariantRepository variantRepository) {
+	public ProductCatalogService(ProductRepository productRepository, ProductVariantRepository variantRepository,
+			ReviewService reviewService) {
 		this.productRepository = productRepository;
 		this.variantRepository = variantRepository;
+		this.reviewService = reviewService;
 	}
 
 	@Transactional(readOnly = true)
@@ -54,7 +59,7 @@ public class ProductCatalogService {
 	}
 
 	@Transactional(readOnly = true)
-	public ProductDetailResponse getProduct(Long id) {
+	public ProductDetailResponse getProduct(Long id, Long currentUserId) {
 		Product product = productRepository.findByIdAndActiveTrue(id)
 				.orElseThrow(() -> new IllegalArgumentException("Product not found"));
 
@@ -62,9 +67,10 @@ public class ProductCatalogService {
 				.map(this::toVariant)
 				.toList();
 
-		// Placeholder review metrics until reviews module is added
-		double rating = 4.2 + (product.getId() % 8) * 0.1;
-		int reviews = 12 + (int) (product.getId() * 3);
+		List<ReviewResponse> reviews = reviewService.listReviews(id);
+		double averageRating = reviewService.averageRating(id);
+		int reviewCount = reviewService.reviewCount(id);
+		boolean canReview = reviewService.canReview(id, currentUserId);
 
 		return new ProductDetailResponse(
 				product.getId(),
@@ -74,8 +80,10 @@ public class ProductCatalogService {
 				product.getBasePrice(),
 				imageKeyFor(product),
 				product.getImageUrl(),
-				Math.min(rating, 5.0),
+				averageRating,
+				reviewCount,
 				reviews,
+				canReview,
 				variants);
 	}
 
