@@ -112,6 +112,113 @@
 .promo-track:hover {
   animation-play-state: paused;
 }
+
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+.product-card {
+  display: flex;
+  flex-direction: column;
+  border-radius: 28px;
+  overflow: hidden;
+  background: var(--surface);
+  border: 1px solid rgba(255,255,255,0.08);
+  box-shadow: 0 30px 80px rgba(15, 23, 42, 0.12);
+}
+.product-card img {
+  width: 100%;
+  height: 240px;
+  object-fit: cover;
+}
+.product-body {
+  padding: 1.5rem;
+}
+.badge-strip {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 1rem;
+  padding: 2rem 0;
+}
+.badge-item {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 18px;
+  padding: 1rem 1.25rem;
+  text-align: center;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+.newsletter-panel {
+  padding: 2.5rem 0;
+  display: flex;
+  justify-content: center;
+}
+.newsletter-card {
+  display: grid;
+  gap: 1.5rem;
+  background: var(--surface);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 28px;
+  padding: 1.75rem;
+  width: min(100%, 760px);
+  max-width: 760px;
+  box-sizing: border-box;
+}
+.newsletter-form {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 1rem;
+  align-items: center;
+}
+.newsletter-form input {
+  min-width: 0;
+  width: 100%;
+  padding: 0.95rem 1rem;
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 14px;
+  background: rgba(255,255,255,0.05);
+  color: var(--text);
+}
+.newsletter-form input::placeholder {
+  color: rgba(203, 213, 225, 0.7);
+}
+@media (max-width: 768px) {
+  .newsletter-form {
+    grid-template-columns: 1fr;
+  }
+}
+.faq-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+.faq-card {
+  background: var(--surface);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 28px;
+  padding: 2rem;
+}
+.social-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+.social-card {
+  background: var(--surface);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 28px;
+  padding: 2rem;
+}
+@media (max-width: 768px) {
+  .newsletter-form {
+    grid-template-columns: 1fr;
+  }
+}
   </style>
 </head>
 <body>
@@ -185,7 +292,8 @@
         <h1 class="headline">Built for the modern man who values premium fit and effortless style.</h1>
         <p class="subtext">Discover crisp tailored essentials, elevated streetwear and seamless shopping across your favorite collections.</p>
         <div class="hero-actions">
-          <a href="login.html" class="btn btn-primary">Login</a>
+          <a href="index.html" class="btn btn-primary">Shop Now</a>
+          <a href="login.html" class="btn btn-outline">Login</a>
           <a href="register.html" class="btn btn-outline">Register</a>
         </div>
       </div>
@@ -251,6 +359,110 @@
           <span class="text-3xl">🔒</span>
           <h3>Trusted experience</h3>
           <p>Every order is backed by customer-first support and transparent returns.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="container py-16">
+      <div class="section-title">Best Sellers</div>
+      <div class="product-grid">
+        <article class="product-card">
+          <img loading="lazy" decoding="async" src="https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=1200&q=80" alt="Premium shirt" />
+          <div class="product-body">
+            <p class="eyebrow">Bestseller</p>
+            <h3>Signature Tailored Shirt</h3>
+            <p>Super soft fabric with a refined cut that works for office, evening, and travel.</p>
+            <a href="index.html" class="btn btn-outline">View Product</a>
+          </div>
+        </article>
+        <article class="product-card">
+          <img loading="lazy" decoding="async" src="https://images.unsplash.com/photo-1503341455253-b2e723bb3dbb?auto=format&fit=crop&w=1200&q=80" alt="Premium suit" />
+          <div class="product-body">
+            <p class="eyebrow">Editor’s Choice</p>
+            <h3>Contemporary Suiting</h3>
+            <p>Structured tailoring and sleek details for a powerful look with effortless wear.</p>
+            <a href="index.html" class="btn btn-outline">View Collection</a>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="container py-16">
+      <div class="section-title">Why Atelier?</div>
+      <div class="feature-grid">
+        <div class="feature-card">
+          <h3>Craftsmanship first</h3>
+          <p>Premium fabrics and tailored details make every piece feel personal and refined.</p>
+        </div>
+        <div class="feature-card">
+          <h3>Trusted quality</h3>
+          <p>Designed in India with modern patterns, rich textures, and timeless finishes.</p>
+        </div>
+        <div class="feature-card">
+          <h3>Effortless luxury</h3>
+          <p>Polished silhouettes, easy care, and a confident fit for everyday wardrobes.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="badge-strip container">
+      <div class="badge-item">Free shipping</div>
+      <div class="badge-item">Easy returns</div>
+      <div class="badge-item">Secure checkout</div>
+      <div class="badge-item">Fit guarantee</div>
+      <div class="badge-item">Made in India</div>
+    </section>
+
+    <section class="container newsletter-panel">
+      <div class="newsletter-card">
+        <div>
+          <p class="eyebrow">Stay in the loop</p>
+          <h2 class="section-title !mb-4">Get 10% off your first order</h2>
+          <p>Subscribe for early access to new drops, curated offers, and exclusive Atelier updates.</p>
+        </div>
+        <form class="newsletter-form" action="#" method="post">
+          <input type="email" name="email" placeholder="Enter your email address" required>
+          <button type="submit" class="btn btn-primary">Subscribe</button>
+        </form>
+      </div>
+    </section>
+
+    <section class="container py-16">
+      <div class="section-title">Shop with confidence</div>
+      <div class="faq-grid">
+        <div class="faq-card">
+          <h3>Fit Guarantee</h3>
+          <p>Receive expert help choosing the right size or exchange your order with ease.</p>
+        </div>
+        <div class="faq-card">
+          <h3>Fast Delivery</h3>
+          <p>Reliable shipping across India so your style refresh arrives quickly.</p>
+        </div>
+        <div class="faq-card">
+          <h3>24/7 Support</h3>
+          <p>Our team is ready to help with sizing, orders, and styling questions at any time.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="container py-16">
+      <div class="section-title">Trusted across India</div>
+      <p class="subtext">Thousands of customers choose Atelier for premium menswear with impeccable fit, finish, and service.</p>
+      <div class="social-grid">
+        <div class="social-card">
+          <span class="eyebrow">Instagram</span>
+          <h3>32k followers</h3>
+          <p>See styling inspiration and customer stories from our featured collections.</p>
+        </div>
+        <div class="social-card">
+          <span class="eyebrow">Customer reviews</span>
+          <h3>4.9/5 rating</h3>
+          <p>Highly rated for quality, delivery, and attentive support on every order.</p>
+        </div>
+        <div class="social-card">
+          <span class="eyebrow">Repeat customers</span>
+          <h3>85% reorder rate</h3>
+          <p>Shoppers come back for the fit, comfort, and elegant wardrobe essentials.</p>
         </div>
       </div>
     </section>
@@ -414,13 +626,22 @@
       </div>
       <div>
         <p class="footer-title">Explore</p>
+        <a class="footer-link" href="index.html">Home</a>
         <a class="footer-link" href="login.html">Login</a>
         <a class="footer-link" href="register.html">Create account</a>
-        <a class="footer-link" href="https://instagram.com" target="_blank">Instagram</a>
+        <a class="footer-link" href="landing.html">Landing</a>
+      </div>
+      <div>
+        <p class="footer-title">Support</p>
+        <a class="footer-link" href="#">Terms</a>
+        <a class="footer-link" href="#">Privacy</a>
+        <a class="footer-link" href="#">Shipping</a>
+        <a class="footer-link" href="#">About Us</a>
       </div>
       <div>
         <p class="footer-title">Contact</p>
         <p>support@mensthreads.com<br>+91 98765 43210</p>
+        <p class="footer-link">Mon–Sat: 10am–7pm</p>
       </div>
     </div>
     <div class="footer-bottom">&copy; 2026 Men's Threads Co. All Rights Reserved.</div>
