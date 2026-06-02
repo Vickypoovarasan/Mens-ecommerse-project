@@ -13,23 +13,84 @@
   <script src="/js/tailwind-config.js"></script>
   <style>
     body { font-family: 'DM Sans', sans-serif; background: radial-gradient(circle at top left, rgba(201, 169, 98, 0.12), transparent 35%), var(--bg); color: var(--text); }
-    .page-header { padding: 5px 0; background: #0f172a; }
-    .page-header .inner { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
-    .brand { font-size: 1.5rem; letter-spacing: 0.18em; font-weight: 700; text-transform: uppercase; color: var(--gold); }
-    .nav-links { display: flex; align-items: center; gap: 0.85rem; }
-    .nav-links a { color: var(--text); font-weight: 600; border: 1px solid rgba(201, 169, 98, 0.2); padding: 0.75rem 1.15rem; border-radius: 9999px; background: rgba(255,255,255,0.04); transition: all 0.25s ease; }
-    .nav-links a:hover { background: rgba(201, 169, 98, 0.12); border-color: var(--gold); text-decoration: none; }
+    .page-header {
+      padding: 10px 0;
+      background: rgba(15, 20, 25, 0.95);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      border-bottom: 1px solid var(--border);
+    }
+    .page-header .inner { display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; }
+    .brand {
+      font-size: 1.75rem;
+      letter-spacing: 0.04em;
+      font-weight: 600;
+      text-transform: uppercase;
+      color: var(--gold);
+    }
+    .nav-links { display: flex; align-items: center; gap: 1.5rem; }
+    .nav-links a {
+      color: var(--muted);
+      font-size: 0.9rem;
+      font-weight: 500;
+      padding: 0;
+      border: none;
+      border-radius: 0;
+      background: transparent;
+      transition: color 0.25s ease;
+    }
+    .nav-links a:hover { color: var(--text); text-decoration: none; }
     .hero-landing {
       min-height: 72vh;
       display: grid;
       align-items: center;
       padding: 4rem 0;
       position: relative;
-      background: linear-gradient(180deg, rgba(15,20,25,0.75), rgba(15,20,25,0.75)), url('https://images.unsplash.com/photo-1512436991641-6745cdb1723f?w=1600&q=80') center/cover no-repeat;
+      overflow: hidden;
+      background: radial-gradient(circle at top left, rgba(15, 20, 25, 0.5), rgba(15, 20, 25, 0.95));
     }
-    .hero-landing::before { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at top right, rgba(249, 115, 22, 0.24), transparent 32%); pointer-events: none; }
-    .hero-panel { position: relative; z-index: 1; max-width: 760px; margin: 0 auto; text-align: center; }
-    .eyebrow { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.3em; color: var(--gold); margin-bottom: 1rem; }
+    .hero-slides {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      z-index: 0;
+    }
+    .hero-slide {
+      position: absolute;
+      inset: 0;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      opacity: 0;
+      animation: hero-fade 12s infinite ease-in-out;
+    }
+    .hero-slide:nth-child(1) { animation-delay: 0s; }
+    .hero-slide:nth-child(2) { animation-delay: 4s; }
+    .hero-slide:nth-child(3) { animation-delay: 8s; }
+    .hero-landing::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(15,20,25,0.65), rgba(15,20,25,0.75));
+      pointer-events: none;
+      z-index: 1;
+    }
+    .hero-panel {
+      position: relative;
+      z-index: 2;
+      max-width: 760px;
+      margin: 0 auto;
+      text-align: center;
+      font-size: 40px;
+    }
+    @keyframes hero-fade {
+      0%, 8.33% { opacity: 0; }
+      16.66%, 33.33% { opacity: 1; }
+      41.66%, 100% { opacity: 0; }
+    }
+    .eyebrow { font-size: 1.1rem; text-transform: uppercase; letter-spacing: 0.3em; color: var(--gold); margin-bottom: 1rem; }
     .headline { font-family: 'Cormorant Garamond', serif; font-size: clamp(3.2rem, 5vw, 5rem); line-height: 0.95; color: var(--text); margin: 0; }
     .subtext { color: var(--muted); font-size: 1.05rem; line-height: 1.9; margin: 1.5rem auto 0; max-width: 42rem; }
     .hero-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 1rem; margin-top: 2.5rem; }
@@ -287,6 +348,11 @@
 
   <main>
     <section class="hero-landing">
+      <div class="hero-slides" aria-hidden="true">
+        <div class="hero-slide" style="background-image: url('https://images.unsplash.com/photo-1512436991641-6745cdb1723f?w=1600&q=80');"></div>
+        <div class="hero-slide" style="background-image: url('https://img.magnific.com/free-photo/group-six-indian-businessman-suits-posed-outdoor-winter-day-europe_627829-1434.jpg?semt=ais_hybrid&w=740&q=80');"></div>
+        <div class="hero-slide" style="background-image: url('https://www.shutterstock.com/image-photo/please-generate-group-photo-many-260nw-2619451489.jpg');"></div>
+      </div>
       <div class="container hero-panel">
         <p class="eyebrow">Men's Threads Atelier</p>
         <h1 class="headline">Built for the modern man who values premium fit and effortless style.</h1>
