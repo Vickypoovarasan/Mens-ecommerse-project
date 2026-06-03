@@ -33,33 +33,8 @@ function renderProduct() {
 
   const loggedIn = getSession().loggedIn;
   const stars = '★'.repeat(Math.round(p.averageRating)) + '☆'.repeat(5 - Math.round(p.averageRating));
-  const reviewListHtml = p.reviewCount === 0
-    ? '<p style="color: var(--muted); margin-bottom: 1rem;">No reviews yet.</p>'
-    : p.reviews.map(r => `
-            <div class="review-item" style="margin-bottom: 1rem; border-bottom: 1px solid #e5e7eb; padding-bottom: 1rem;">
-              <div style="display:flex; justify-content:space-between; align-items:center; gap: 0.75rem; flex-wrap:wrap;">
-                <strong>${escapeHtml(r.authorName)}</strong>
-                <span>${'★'.repeat(r.stars)}${'☆'.repeat(5 - r.stars)}</span>
-              </div>
-              <p style="color: var(--muted); margin: 0.35rem 0 0.25rem;">${escapeHtml(r.comment || '')}</p>
-              <div style="font-size:0.85rem; color: var(--muted);">${escapeHtml(r.createdAt ? new Date(r.createdAt).toLocaleDateString() : '')}</div>
-            </div>
-          `).join('');
-
-  const reviewFormHtml = loggedIn
-    ? p.canReview
-      ? `
-            <div class="review-form" style="margin-top: 1.5rem;">
-              <h3 style="font-family: var(--font-display); margin-bottom: 0.75rem;">Share your review</h3>
-              <div class="star-picker" id="reviewStars" style="margin-bottom: 1rem; font-size: 1.75rem;">
-                ${[1,2,3,4,5].map(s => `<button type="button" class="star-btn ${s <= selectedReviewStars ? 'active' : ''}" data-stars="${s}" style="background:none;border:none;cursor:pointer;color:${s <= selectedReviewStars ? '#f59e0b' : '#d1d5db'};font-size:1.75rem;">${s <= selectedReviewStars ? '★' : '☆'}</button>`).join('')}
-              </div>
-              <textarea id="reviewComment" rows="4" placeholder="Write your comment (optional)" style="width:100%;padding:0.75rem;border:1px solid #cbd5e1;border-radius:0.5rem;resize:vertical;"></textarea>
-              <button type="button" class="btn btn-primary" id="submitReviewBtn" style="margin-top:0.75rem;">Submit review</button>
-            </div>
-          `
-      : '<p style="color: var(--muted); margin-top: 1rem;">Reviews are available only after delivery.</p>'
-    : '<p style="color: var(--muted); margin-top: 1rem;"><a href="login.html">Sign in</a> to write a review.</p>';
+  const reviewListHtml = renderReviewList(p.reviews);
+  const reviewFormHtml = renderReviewForm(loggedIn, p.canReview);
 
   document.getElementById('detailMain').innerHTML = `
     <div class="detail-layout animate-fade-in">
@@ -101,7 +76,51 @@ function renderProduct() {
 
   bindVariantButtons();
   bindActions();
+  bindReviewStars();
+  bindReviewSubmit();
   updateStockUi();
+}
+
+function renderReviewList(reviews) {
+  if (!Array.isArray(reviews) || reviews.length === 0) {
+    return '<p style="color: var(--muted); margin-bottom: 1rem;">No reviews yet.</p>';
+  }
+
+  return reviews.map(r => `
+            <div class="review-item" style="margin-bottom: 1rem; border-bottom: 1px solid #e5e7eb; padding-bottom: 1rem;">
+              <div style="display:flex; justify-content:space-between; align-items:center; gap: 0.75rem; flex-wrap:wrap;">
+                <strong>${escapeHtml(r.authorName)}</strong>
+                <span>${'★'.repeat(r.stars)}${'☆'.repeat(5 - r.stars)}</span>
+              </div>
+              <p style="color: var(--muted); margin: 0.35rem 0 0.25rem;">${escapeHtml(r.comment || '')}</p>
+              <div style="font-size:0.85rem; color: var(--muted);">${escapeHtml(r.createdAt ? new Date(r.createdAt).toLocaleDateString() : '')}</div>
+            </div>
+          `).join('');
+}
+
+function renderReviewForm(loggedIn, canReview) {
+  if (!loggedIn) {
+    return '<p style="color: var(--muted); margin-top: 1rem;"><a href="login.html">Sign in</a> to write a review.</p>';
+  }
+  if (!canReview) {
+    return '<p style="color: var(--muted); margin-top: 1rem;">Reviews are available only after delivery.</p>';
+  }
+
+  let starsHtml = '';
+  for (let s = 1; s <= 5; s += 1) {
+    starsHtml += `<button type="button" class="star-btn ${s <= selectedReviewStars ? 'active' : ''}" data-stars="${s}" style="background:none;border:none;cursor:pointer;color:${s <= selectedReviewStars ? '#f59e0b' : '#d1d5db'};font-size:1.75rem;">${s <= selectedReviewStars ? '★' : '☆'}</button>`;
+  }
+
+  return `
+            <div class="review-form" style="margin-top: 1.5rem;">
+              <h3 style="font-family: var(--font-display); margin-bottom: 0.75rem;">Share your review</h3>
+              <div class="star-picker" id="reviewStars" style="margin-bottom: 1rem; font-size: 1.75rem;">
+                ${starsHtml}
+              </div>
+              <textarea id="reviewComment" rows="4" placeholder="Write your comment (optional)" style="width:100%;padding:0.75rem;border:1px solid #cbd5e1; border-radius:0.5rem;resize:vertical;"></textarea>
+              <button type="button" class="btn btn-primary" id="submitReviewBtn" style="margin-top:0.75rem;">Submit review</button>
+            </div>
+          `;
 }
 
 function bindVariantButtons() {
@@ -138,6 +157,8 @@ function updateStockUi() {
 
   if (!selectedVariant) {
     msg.textContent = 'Select size and color';
+    msg.classList.remove('low');
+    msg.style.color = '';
     if (addBtn) addBtn.disabled = true;
     if (buyBtn) buyBtn.disabled = true;
     return;
@@ -146,19 +167,57 @@ function updateStockUi() {
   if (selectedVariant.stock <= 0) {
     msg.textContent = 'Out of stock';
     msg.classList.add('low');
+    msg.style.color = '#dc2626';
     if (addBtn) addBtn.disabled = true;
     if (buyBtn) buyBtn.disabled = true;
   } else if (selectedVariant.stock <= 3) {
     msg.textContent = `Only ${selectedVariant.stock} left in stock`;
     msg.classList.add('low');
+    msg.style.color = '#dc2626';
     if (addBtn) addBtn.disabled = false;
     if (buyBtn) buyBtn.disabled = false;
   } else {
     msg.textContent = 'In stock';
     msg.classList.remove('low');
+    msg.style.color = '#16a34a';
     if (addBtn) addBtn.disabled = false;
     if (buyBtn) buyBtn.disabled = false;
   }
+}
+
+function bindReviewStars() {
+  document.querySelectorAll('#reviewStars .star-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      selectedReviewStars = Number(btn.dataset.stars) || 5;
+      document.querySelectorAll('#reviewStars .star-btn').forEach(b => {
+        const stars = Number(b.dataset.stars);
+        b.textContent = stars <= selectedReviewStars ? '★' : '☆';
+        b.style.color = stars <= selectedReviewStars ? '#f59e0b' : '#d1d5db';
+      });
+    });
+  });
+}
+
+function bindReviewSubmit() {
+  const submit = document.getElementById('submitReviewBtn');
+  if (!submit) return;
+  submit.addEventListener('click', async () => {
+    console.log('submitReviewBtn clicked');
+    try {
+      const comment = document.getElementById('reviewComment').value.trim();
+      console.log('submitReview payload', { stars: selectedReviewStars, comment });
+      const response = await apiFetch(`/api/products/${product.id}/reviews`, {
+        method: 'POST',
+        body: JSON.stringify({ stars: selectedReviewStars, comment })
+      });
+      console.log('submitReview response', response);
+      showToast('Review submitted', 'success');
+      loadProduct();
+    } catch (e) {
+      console.error('submitReview error', e);
+      showToast(e.message, 'error');
+    }
+  });
 }
 
 function bindActions() {
